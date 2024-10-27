@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Ensure you have the correct path
 
-const Rental = sequelize.define('Rental', {
+const Rental = sequelize.define('rental', {
     itemId: { // Using itemId instead of item for clarity in MySQL
         type: DataTypes.INTEGER,
         allowNull: false,
