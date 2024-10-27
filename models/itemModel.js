@@ -2,7 +2,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Adjust path to your DB config
 
-const Item = sequelize.define('Item', {
+const Item = sequelize.define('Items', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,

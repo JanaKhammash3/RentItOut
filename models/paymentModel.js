@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Adjust path as necessary
 
-const Payment = sequelize.define('Payment', {
+const Payment = sequelize.define('Payments', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -10,10 +10,18 @@ const Payment = sequelize.define('Payment', {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: 'users', // Reference to User table
+            key: 'id',
+        },
     },
     rentalId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: 'rentals', // Reference to Rental table
+            key: 'id',
+        },
     },
     amount: {
         type: DataTypes.FLOAT,
