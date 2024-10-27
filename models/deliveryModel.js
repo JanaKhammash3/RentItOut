@@ -3,7 +3,7 @@ const sequelize = require('../config/database'); // Adjust the path if needed
 const User = require('./userModel'); // Adjust if User model is in a different folder
 const Item = require('./itemModel'); // Adjust if Item model is in a different folder
 
-const Delivery = sequelize.define('Delivery', {
+const Delivery = sequelize.define('deliveries', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,

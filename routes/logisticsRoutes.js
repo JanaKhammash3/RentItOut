@@ -10,7 +10,7 @@ router.post('/deliveries', authMiddleware(), async (req, res) => {
         const delivery = await Delivery.create({
             userId: req.user.id, // assuming req.user contains authenticated user
             itemId: req.body.itemId,
-            pickupLocation: req.body.pickupLocation
+            pickupLocation: req.body.pickupLocation,
         });
 
         res.status(201).json({ message: 'Delivery scheduled successfully', delivery });
