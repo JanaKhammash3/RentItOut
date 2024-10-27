@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Adjust path as needed
 
-const Insurance = sequelize.define('Insurance', {
+const Insurance = sequelize.define('Insurances', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
