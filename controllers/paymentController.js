@@ -1,12 +1,24 @@
 const Payment = require('../models/paymentModel'); // Import the Payment model
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY); // Load Stripe with secret key
+const Rental = require('../models/rentalModel'); // Import Rental model to validate rentalId
+const User = require('../models/userModel'); // Import User model to validate userId
 
 // POST /payments: Process rental payments and deposits
 exports.processPayment = async (req, res, next) => {
     try {
         const { userId, rentalId, amount, paymentMethodId, currency = 'usd' } = req.body;
 
+        // Validate user and rental
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const rental = await Rental.findByPk(rentalId);
+        if (!rental) {
+            return res.status(404).json({ success: false, message: 'Rental not found' });
+        }
         // 1. Process payment via Stripe
         const paymentIntent = await stripe.paymentIntents.create({
             amount: Math.round(amount * 100), // Convert to smallest currency unit (cents for USD)

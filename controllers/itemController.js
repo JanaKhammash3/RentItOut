@@ -1,11 +1,27 @@
 //Handles CRUD operations for items.
 const Item = require('../models/itemModel'); // Adjust model path as needed
+const User = require('../models/userModel'); // Import User model to validate ownerId
 
 // Create a new item (POST /items)
 exports.createItem = async (req, res, next) => {
     try {
-        const item = await Item.create(req.body); // Using Sequelize's create method
-        res.status(201).json(item);
+        const { name, category, description, pricePerDay, isAvailable, ownerId } = req.body;
+
+        // Validate the ownerId
+        const owner = await User.findByPk(ownerId);
+        if (!owner) {
+            return res.status(404).json({ message: 'Owner not found' });
+        }
+
+        const item = await Item.create({
+            name,
+            category,
+            description,
+            pricePerDay,
+            isAvailable,
+            ownerId,
+        }); 
+       res.status(201).json(item);
     } catch (error) {
         next(error); // Pass error to global error handler if defined
     }

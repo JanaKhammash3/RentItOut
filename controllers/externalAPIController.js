@@ -1,5 +1,6 @@
 //Integrates with external APIs (e.g., Google Maps).
 const axios = require('axios');
+const Insurance = require('../models/insuranceModel'); // Import the Insurance model
 
 exports.getLocationData = async (req, res, next) => {
     try {
@@ -22,7 +23,9 @@ exports.verifyInsurance = async (req, res, next) => {
         const response = await axios.post(insuranceApiUrl, { userId, policyId });
 
         if (response.data.verified) {
+            await Insurance.update({ status: 'verified' }, { where: { id: policyId } });
             res.json({ message: 'Insurance verified successfully.' });
+
         } else {
             res.status(400).json({ message: 'Insurance verification failed.' });
         }

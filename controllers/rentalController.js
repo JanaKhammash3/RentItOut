@@ -1,5 +1,7 @@
 const Rental = require('../models/rentalModel'); // Sequelize Rental model
 const Item = require('../models/itemModel'); // Sequelize Item model
+const User = require('../models/userModel'); // Sequelize User model
+
 
 // POST /rentals: Start a new rental
 exports.startRental = async (req, res, next) => {
@@ -11,6 +13,12 @@ exports.startRental = async (req, res, next) => {
         if (!item) {
             return res.status(404).json({ message: 'Item not found' });
         }
+
+         // Validate renter existence
+         const renter = await User.findByPk(renterId);
+         if (!renter) {
+             return res.status(404).json({ message: 'Renter not found' });
+         }
 
         // Calculate total rental cost (price per day)
         const rentalDays = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
@@ -25,8 +33,12 @@ exports.startRental = async (req, res, next) => {
             totalCost,
         });
 
-        res.status(201).json(newRental);
-    } catch (error) {
+      res.status(201).json({
+            success: true,
+            message: 'Rental started successfully',
+            rental: newRental,
+        })
+     } catch (error) {
         next(error);
     }
 };
@@ -35,7 +47,7 @@ exports.startRental = async (req, res, next) => {
 exports.getRentals = async (req, res, next) => {
     try {
         const rentals = await Rental.findAll({
-            include: ['item', 'renter'], // Assuming associations are defined
+            include: [{ model: Item, as: 'item' }, { model: User, as: 'renter' }], // Assuming associations are defined
         });
         res.status(200).json(rentals);
     } catch (error) {
@@ -82,8 +94,12 @@ exports.cancelRental = async (req, res, next) => {
         rental.status = 'canceled';
         await rental.save();
 
-        res.status(200).json({ message: 'Rental canceled', rental });
-    } catch (error) {
+        res.status(200).json({
+            success: true,
+            message: 'Rental canceled',
+            rental,
+        });
+        } catch (error) {
         next(error);
     }
 };

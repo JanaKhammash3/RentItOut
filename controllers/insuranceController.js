@@ -1,9 +1,23 @@
 const Insurance = require('../models/insuranceModel'); // Import Insurance model
+const User = require('../models/userModel'); // Import User model
+const Item = require('../models/itemModel'); // Import Item model
+
 
 // POST /insurance: Purchase insurance
 exports.purchaseInsurance = async (req, res, next) => {
     try {
         const { userId, itemId, coverageAmount } = req.body;
+
+        const user = await User.findByPk(userId);
+        const item = await Item.findByPk(itemId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (!item) {
+            return res.status(404).json({ message: 'Item not found' });
+        }
 
         // Create a new insurance policy
         const newInsurance = await Insurance.create({
@@ -27,6 +41,11 @@ exports.purchaseInsurance = async (req, res, next) => {
 exports.getUserInsurances = async (req, res, next) => {
     try {
         const { userId } = req.params;
+        const user = await User.findByPk(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
         const insurances = await Insurance.findAll({ where: { userId } });
 
         if (!insurances.length) {
