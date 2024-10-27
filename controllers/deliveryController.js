@@ -1,4 +1,4 @@
-const Delivery = require('../models/deliveryModel');
+const { Delivery } = require('../models/deliveryModel');
 const sequelize = require('../config/database');
 
 // Create a new delivery

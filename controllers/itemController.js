@@ -1,6 +1,6 @@
 //Handles CRUD operations for items.
-const Item = require('../models/itemModel'); // Adjust model path as needed
-const User = require('../models/userModel'); // Import User model to validate ownerId
+const {Item} = require('../models/itemModel'); // Adjust model path as needed
+const {User} = require('../models/userModel'); // Import User model to validate ownerId
 
 // Create a new item (POST /items)
 exports.createItem = async (req, res, next) => {

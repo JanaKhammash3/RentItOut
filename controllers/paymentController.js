@@ -1,8 +1,8 @@
-const Payment = require('../models/paymentModel'); // Import the Payment model
+const {Payment} = require('../models/paymentModel'); // Import the Payment model
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY); // Load Stripe with secret key
-const Rental = require('../models/rentalModel'); // Import Rental model to validate rentalId
-const User = require('../models/userModel'); // Import User model to validate userId
+const {Rental} = require('../models/rentalModel'); // Import Rental model to validate rentalId
+const {User} = require('../models/userModel'); // Import User model to validate userId
 
 // POST /payments: Process rental payments and deposits
 exports.processPayment = async (req, res, next) => {
