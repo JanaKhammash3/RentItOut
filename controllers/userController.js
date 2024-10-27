@@ -1,13 +1,16 @@
-const User = require('../models/userModel');
+const { User } = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const sequelize = require('../config/database');
 
 // Register a new user
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body; // Updated to match the SQL structure
+    const { name, email, password } = req.body; 
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Add logging to check if the data is being passed correctly
+    console.log("Registering user with data:", { name, email, hashedPassword });
+
     const user = await User.create({ name, email, password: hashedPassword });
     res.status(201).json({
       success: true,
@@ -18,8 +21,8 @@ exports.registerUser = async (req, res) => {
         email: user.email,
       },
     });
-  }
-  catch (error) {
+  } catch (error) {
+    console.error("Error creating user:", error); // Log error details
     res.status(500).json({ error: error.message });
   }
 };
@@ -55,34 +58,34 @@ exports.loginUser = async (req, res) => {
 // Get user profile
 exports.getProfile = async (req, res) => {
   try {
-      const user = await User.findById(req.user.id); // Assuming req.user is set by authMiddleware
-      if (!user) return res.status(404).json({ error: 'User not found' });
-      
-      res.status(200).json({
-        success: true,
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          isVerified: user.isVerified,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
-        },
-      });
-      } catch (error) {
-      res.status(500).json({ error: error.message });
+    const user = await User.findByPk(req.user.id); // Use findByPk instead of findById
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        isVerified: user.isVerified,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
 // Delete user
 exports.deleteUser = async (req, res) => {
   try {
-      const user = await User.findById(req.params.userId);
-      if (!user) return res.status(404).json({ error: 'User not found' });
+    const user = await User.findByPk(req.params.userId); // Use findByPk instead of findById
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
-      await user.destroy(); // Assuming you are using Sequelize or similar ORM
-      res.status(204).json(); // No content
+    await user.destroy(); // Assuming you are using Sequelize or similar ORM
+    res.status(204).json(); // No content
   } catch (error) {
-      res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };

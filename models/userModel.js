@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Adjust path as needed
 
+// Define the User model
 const User = sequelize.define('users', {
     id: {
         type: DataTypes.INTEGER,
@@ -19,18 +20,22 @@ const User = sequelize.define('users', {
             isEmail: true,
         },
     },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false, // Make sure this field is required
+    },
     isVerified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
     },
     verificationDocuments: {
-        type: DataTypes.JSON, // Can store file paths as an array of strings
+        type: DataTypes.JSON, 
     },
 }, { 
     timestamps: true 
 });
 
-// Define association for self-referencing reviews
+// Define the Review model
 const Review = sequelize.define('reviews', {
     rating: {
         type: DataTypes.INTEGER,
@@ -42,7 +47,8 @@ const Review = sequelize.define('reviews', {
 });
 
 // Relationships: A user can receive many reviews, and reviews are given by other users
-User.hasMany(Review, { foreignKey: 'reviewerId' });
-User.hasMany(Review, { foreignKey: 'userId' });
+User.hasMany(Review, { foreignKey: 'reviewerId' }); // Reviews written by this user
+User.hasMany(Review, { foreignKey: 'userId' });     // Reviews received by this user
 
+// Export the models
 module.exports = { User, Review };

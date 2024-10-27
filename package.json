@@ -19,5 +19,8 @@
     },
     "keywords": [],
     "author": "Tala Abu Soud",
-    "license": "ISC"
+    "license": "ISC",
+    "devDependencies": {
+        "@types/dotenv": "^6.1.1"
+    }
 }
