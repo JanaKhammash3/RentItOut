@@ -3,7 +3,7 @@ const sequelize = require('../config/database'); // Adjust path as necessary
 const Item = require('./itemModel'); // Import Item model if needed for associations
 const User = require('./userModel'); // Assuming the renter is a user
 
-const Rental = sequelize.define('Rentals', {
+const Rental = sequelize.define('rentals', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,

@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Adjust path as needed
 
-const User = sequelize.define('Users', {
+const User = sequelize.define('users', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -31,7 +31,7 @@ const User = sequelize.define('Users', {
 });
 
 // Define association for self-referencing reviews
-const Review = sequelize.define('Reviews', {
+const Review = sequelize.define('reviews', {
     rating: {
         type: DataTypes.INTEGER,
         allowNull: false,
