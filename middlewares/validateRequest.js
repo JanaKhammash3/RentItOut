@@ -1,9 +1,9 @@
 // middleware/validateRequest.js
 exports.validateRequest = (req, res, next) => {
-    const { userId, rentalId, amount, paymentMethodId } = req.body;
+    const { userId, rentalId, amount } = req.body;
 
     // Check for required fields
-    if (!userId || !rentalId || !amount || !paymentMethodId) {
+    if (!userId || !rentalId || !amount) {
         return res.status(400).json({
             success: false,
             message: 'Missing required fields: userId, rentalId, amount, paymentMethodId',

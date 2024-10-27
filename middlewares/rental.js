@@ -6,7 +6,7 @@ const Rental = sequelize.define('Rental', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'Items', // This should match the actual table name in MySQL
+            model: 'items', // This should match the actual table name in MySQL
             key: 'id',
         },
     },
@@ -14,7 +14,7 @@ const Rental = sequelize.define('Rental', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'Users', // This should match the actual table name in MySQL
+            model: 'users', // This should match the actual table name in MySQL
             key: 'id',
         },
     },

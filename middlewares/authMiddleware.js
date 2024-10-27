@@ -36,3 +36,4 @@ module.exports = () => {
         next();
     };
 };
+// or module.exports = authMiddleware;
