@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/userModel'); // Adjust the path if necessary
+const {User} = require('../models/userModel'); // Adjust the path if necessary
 
 // Middleware to check authentication and optionally check for roles
 const authMiddleware = (roles = []) => {
