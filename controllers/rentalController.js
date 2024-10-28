@@ -1,5 +1,5 @@
-const {Rental} = require('../models/rentalModel'); // Sequelize Rental model
-const {Item} = require('../models/itemModel'); // Sequelize Item model
+const Rental = require('../models/rentalModel'); // Sequelize Rental model
+const Item = require('../models/itemModel'); // Sequelize Item model
 const {User} = require('../models/userModel'); // Sequelize User model
 
 

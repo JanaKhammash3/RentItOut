@@ -1,6 +1,6 @@
-const { Insurance} = require('../models/insuranceModel'); // Import Insurance model
+const  Insurance = require('../models/insuranceModel'); // Import Insurance model
 const { User } = require('../models/userModel'); // Import User model
-const { Item }= require('../models/itemModel'); // Import Item model
+const  Item = require('../models/itemModel'); // Import Item model
 
 
 // POST /insurance: Purchase insurance

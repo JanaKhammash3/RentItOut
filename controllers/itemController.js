@@ -1,6 +1,6 @@
 //Handles CRUD operations for items.
-const {Item} = require('../models/itemModel'); // Adjust model path as needed
-const {User} = require('../models/userModel'); // Import User model to validate ownerId
+const Item  = require('../models/itemModel'); // Adjust model path as needed
+const { User } = require('../models/userModel'); // Import User model to validate ownerId
 
 // Create a new item (POST /items)
 exports.createItem = async (req, res, next) => {
@@ -13,6 +13,9 @@ exports.createItem = async (req, res, next) => {
             return res.status(404).json({ message: 'Owner not found' });
         }
 
+        // Add logging to check if the data is being passed correctly
+        console.log("Creating item with data:", { name, category, description, pricePerDay, isAvailable, ownerId });
+
         const item = await Item.create({
             name,
             category,
@@ -20,10 +23,26 @@ exports.createItem = async (req, res, next) => {
             pricePerDay,
             isAvailable,
             ownerId,
-        }); 
-       res.status(201).json(item);
+        });
+
+        res.status(201).json({
+            success: true,
+            message: 'Item created successfully',
+            item: {
+                id: item.id,
+                name: item.name,
+                category: item.category,
+                description: item.description,
+                pricePerDay: item.pricePerDay,
+                isAvailable: item.isAvailable,
+                ownerId: item.ownerId,
+                createdAt: item.createdAt,
+                updatedAt: item.updatedAt,
+            },
+        });
     } catch (error) {
-        next(error); // Pass error to global error handler if defined
+        console.error("Error creating item:", error); // Log error details
+        res.status(500).json({ error: error.message });
     }
 };
 
@@ -58,7 +77,7 @@ exports.updateItem = async (req, res, next) => {
             returning: true, // Needed to get the updated item
         });
 
-        if (!updatedRows) {
+        if (updatedRows === 0) {
             return res.status(404).json({ message: 'Item not found' });
         }
         res.status(200).json(updatedItem);
@@ -74,7 +93,7 @@ exports.deleteItem = async (req, res, next) => {
             where: { id: req.params.itemId },
         });
 
-        if (!deletedRows) {
+        if (deletedRows === 0) {
             return res.status(404).json({ message: 'Item not found' });
         }
         res.status(200).json({ message: 'Item deleted successfully' });
@@ -82,4 +101,3 @@ exports.deleteItem = async (req, res, next) => {
         next(error);
     }
 };
-
