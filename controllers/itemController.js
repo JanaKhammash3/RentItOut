@@ -72,7 +72,7 @@ exports.getItemById = async (req, res, next) => {
 // Update an item (PUT /items/:itemId)
 exports.updateItem = async (req, res, next) => {
     try {
-        const [updatedRows, [updatedItem]] = await Item.update(req.body, {
+        const [updatedRows, updatedItems] = await Item.update(req.body, {
             where: { id: req.params.itemId },
             returning: true, // Needed to get the updated item
         });
@@ -80,11 +80,14 @@ exports.updateItem = async (req, res, next) => {
         if (updatedRows === 0) {
             return res.status(404).json({ message: 'Item not found' });
         }
+        
+        const updatedItem = updatedItems[0]; // Get the first updated item
         res.status(200).json(updatedItem);
     } catch (error) {
         next(error);
     }
 };
+
 
 // Delete an item (DELETE /items/:itemId)
 exports.deleteItem = async (req, res, next) => {
