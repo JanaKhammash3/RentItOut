@@ -31,7 +31,7 @@ const Item = sequelize.define('items', {
         type: DataTypes.INTEGER, // Adjust based on your User ID type
         allowNull: false,
         references: {
-            model: 'Users', // Adjust this to your actual Users table name
+            model: 'users', // Adjust this to your actual Users table name
             key: 'id',
         },
     },
