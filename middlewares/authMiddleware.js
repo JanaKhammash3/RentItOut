@@ -13,7 +13,7 @@ const authMiddleware = (roles = []) => {
 
             // Verify token
             const decoded = jwt.verify(token, process.env.JWT_SECRET); // Ensure you have a JWT_SECRET in your .env
-            req.user = decoded; // Attach user data to the request
+            req.user = await User.findByPk(decoded.id); // Fetch the user from the database
 
             // If roles are specified, check user's role
             if (roles.length && !roles.includes(req.user.role)) {
@@ -27,13 +27,15 @@ const authMiddleware = (roles = []) => {
     };
 };
 
-// module.exports = authMiddleware;
-module.exports = () => {
-    return (req, res, next) => {
-        // Your authentication logic here
-        // If authenticated, call next()
-        // If not authenticated, respond with an error
-        next();
-    };
-};
+module.exports = authMiddleware;
+
+// module.exports = () => {
+//     return (req, res, next) => {
+//         // Your authentication logic here
+//         // If authenticated, call next()
+//         // If not authenticated, respond with an error
+//         next();
+//     };
+// };
+
 // or module.exports = authMiddleware;

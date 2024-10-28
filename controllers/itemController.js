@@ -4,6 +4,7 @@ const { User } = require('../models/userModel'); // Import User model to validat
 
 // Create a new item (POST /items)
 exports.createItem = async (req, res, next) => {
+    
     try {
         const { name, category, description, pricePerDay, isAvailable, ownerId } = req.body;
 
@@ -46,10 +47,50 @@ exports.createItem = async (req, res, next) => {
     }
 };
 
+// Get all items for a specific user (GET /items/user/:ownerId)
+exports.getItemsByUserId = async (req, res, next) => {
+    try {
+        const { ownerId } = req.params; // Get ownerId from URL parameters
+
+        // Fetch items based on ownerId
+        const items = await Item.findAll({
+            where: { ownerId: ownerId }, // Filter by ownerId
+        });
+
+        if (items.length === 0) {
+            return res.status(404).json({ message: 'No items found for this user.' });
+        }
+
+        res.status(200).json(items);
+    } catch (error) {
+        console.error("Error retrieving items for user:", error); // Log error details
+        next(error);
+    }
+};
+
 // Get all items (GET /items)
 exports.getAllItems = async (req, res, next) => {
     try {
         const items = await Item.findAll(); // Use Sequelize's findAll()
+        res.status(200).json(items);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Get items by category (GET /items/category/:category)
+exports.getItemsByCategory = async (req, res, next) => {
+    const { category } = req.params; // Get category from the URL params
+
+    try {
+        const items = await Item.findAll({
+            where: { category } // Filter by category
+        });
+
+        if (items.length === 0) {
+            return res.status(404).json({ message: 'No items found for this category' });
+        }
+
         res.status(200).json(items);
     } catch (error) {
         next(error);

@@ -10,8 +10,14 @@ router.post('/', authMiddleware(),  itemController.createItem); // Assuming addI
 // GET /items: Retrieve a list of items
 router.get('/', itemController.getAllItems); // Assuming getItems fetches all items
 
+// GET /items/category/:category: Retrieve items by category
+router.get('/category/:category', itemController.getItemsByCategory); // New route for filtering items by category
+
 // GET /items/:itemId: Retrieve details of a specific item
 router.get('/:itemId', itemController.getItemById);
+
+// GET /items/user/:ownerId: Retrieve all items for a specific user
+router.get('/user/:ownerId', itemController.getItemsByUserId); // New route
 
 // PUT /items/:itemId: Update an item
 router.put('/:itemId', itemController.updateItem);
