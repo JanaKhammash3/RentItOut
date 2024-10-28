@@ -20,7 +20,10 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/rentals', rentalRoutes); // Add rental routes
 app.use('/api/users', userRoutes); // Add the user routes
 app.use('/api/logistics', logisticsRoutes); 
-
+app.post('/api/test', (req, res) => {
+  console.log('🚀 POST /api/test route hit 🚀');
+  res.send('Direct test route is working');
+});
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

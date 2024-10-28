@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Adjust path as necessary
-const Item = require('./itemModel'); // Import Item model if needed for associations
-const User = require('./userModel'); // Assuming the renter is a user
+const  Item  = require('./itemModel'); // Import Item model if needed for associations
+const {User} = require('./userModel'); // Assuming the renter is a user
 
 const Rental = sequelize.define('rentals', {
     id: {
@@ -45,4 +45,4 @@ const Rental = sequelize.define('rentals', {
     timestamps: true,
 });
 
-module.exports = Rental;
+module.exports = { Rental, Item, User };
