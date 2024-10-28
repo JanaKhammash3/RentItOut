@@ -7,9 +7,10 @@ const router = express.Router();
 // User registration and login
 router.post('/register', userController.registerUser); // No auth needed
 router.post('/login', userController.loginUser); // No auth needed
+router.post('/logout', userController.authenticate, userController.logoutUser);
 
 // Get user profile (auth required)
-router.get('/profile', authMiddleware(), userController.getProfile); 
+router.get('/profile', userController.authenticate, userController.getProfile);
 
 // Admin route: Delete a user (only accessible by admin)
 router.delete('/:userId', authMiddleware(['admin']), userController.deleteUser); 

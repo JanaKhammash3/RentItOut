@@ -2,6 +2,12 @@ const { User } = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// In-memory token blacklist
+const tokenBlacklist = [];
+
+// Helper function to check if a token is blacklisted
+const isTokenBlacklisted = (token) => tokenBlacklist.includes(token);
+
 // Register a new user
 exports.registerUser = async (req, res) => {
   try {
@@ -64,8 +70,24 @@ exports.loginUser = async (req, res) => {
 
 // Logout user
 exports.logoutUser = (req, res) => {
-  // For now, just return a message; you might want to implement token invalidation
+  const token = req.header('Authorization').replace('Bearer ', '');
+  tokenBlacklist.push(token); // Add token to blacklist
   res.status(200).json({ success: true, message: 'User logged out successfully' });
+};
+
+// Middleware to authenticate and check for blacklisted tokens
+exports.authenticate = (req, res, next) => {
+  const token = req.header('Authorization').replace('Bearer ', '');
+  if (isTokenBlacklisted(token)) {
+    return res.status(401).json({ error: 'Invalid session. Please log in again.' });
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid token' });
+  }
 };
 
 // Get user profile
@@ -90,7 +112,7 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// Delete user (make sure this function is defined)
+// Delete user
 exports.deleteUser = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.userId);
