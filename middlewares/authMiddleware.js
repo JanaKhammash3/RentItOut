@@ -29,5 +29,13 @@ const authMiddleware = (roles = []) => {
 
 module.exports = authMiddleware;
 
+// module.exports = () => {
+//     return (req, res, next) => {
+//         // Your authentication logic here
+//         // If authenticated, call next()
+//         // If not authenticated, respond with an error
+//         next();
+//     };
+// };
 
-
+// or module.exports = authMiddleware;
