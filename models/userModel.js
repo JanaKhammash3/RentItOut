@@ -64,7 +64,7 @@ const User = sequelize.define('users', {
 }, { 
     timestamps: true 
 });
-
+//123
 // Define the Review model
 const Review = sequelize.define('reviews', {
     rating: {
