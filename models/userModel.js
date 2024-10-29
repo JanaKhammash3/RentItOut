@@ -45,6 +45,10 @@ const User = sequelize.define('users', {
             isNumeric: true, // ID must be numeric
         },
     },
+    address: {
+        type: DataTypes.STRING, // Changed from Sequelize.STRING to DataTypes.STRING
+        allowNull: true, // Makes the address field optional
+    },
     isVerified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
