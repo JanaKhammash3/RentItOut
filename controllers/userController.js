@@ -75,6 +75,67 @@ exports.logoutUser = (req, res) => {
   res.status(200).json({ success: true, message: 'User logged out successfully' });
 };
 
+
+
+// Add this method to userController.js
+const { Op } = require('sequelize'); // Import the Op operator from Sequelize
+
+exports.verifyUser = async (req, res) => {
+  try {
+    const { idNumber, phone, address } = req.body;
+
+    // Validations
+    if (!idNumber || !phone || !address) {
+      return res.status(400).json({ error: 'ID number, phone, and address are required.' });
+    }
+    if (!/^\d+$/.test(idNumber)) {
+      return res.status(400).json({ error: 'ID number must contain only numeric characters.' });
+    }
+    if (!/^\d+$/.test(phone)) {
+      return res.status(400).json({ error: 'Phone must contain only numeric characters.' });
+    }
+
+    // Find the user by ID from the token
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Check if idNumber or phone are already in use by other users
+    const conflictingID = await User.findOne({ where: { idNumber, id: { [Op.ne]: user.id } } });
+    const conflictingPhone = await User.findOne({ where: { phone, id: { [Op.ne]: user.id } } });
+
+    if (conflictingID) return res.status(400).json({ error: 'ID number is already in use by another account.' });
+    if (conflictingPhone) return res.status(400).json({ error: 'Phone number is already linked to another account.' });
+
+    // Confirm the provided idNumber and phone match the existing user's data
+    if (user.idNumber !== idNumber || user.phone !== phone) {
+      return res.status(400).json({ error: 'Provided ID number or phone number does not match our records.' });
+    }
+
+    // Store the address and update the user's verification status
+    user.address = address;
+    user.isVerified = true; // Update verification status
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'User verified successfully',
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        isVerified: user.isVerified,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+
+
 // Middleware to authenticate and check for blacklisted tokens
 exports.authenticate = (req, res, next) => {
   const token = req.header('Authorization').replace('Bearer ', '');
@@ -111,6 +172,52 @@ exports.getProfile = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Update user profile
+exports.updateUserProfile = async (req, res) => {
+  try {
+    const { name, email, phone } = req.body;
+    
+    // Validate fields
+    if (!name || !email || !phone) {
+      return res.status(400).json({ error: 'Name, email, and phone are required.' });
+    }
+    if (!email.includes('@')) {
+      return res.status(400).json({ error: 'Invalid email format.' });
+    }
+    if (!/^\d+$/.test(phone)) {
+      return res.status(400).json({ error: 'Phone must contain only numeric characters.' });
+    }
+
+    // Find the user by ID extracted from JWT
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Update fields
+    user.name = name;
+    user.email = email;
+    user.phone = phone;
+
+    // Save updated user profile
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        updatedAt: user.updatedAt,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 
 // Delete user
 exports.deleteUser = async (req, res) => {
