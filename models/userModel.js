@@ -1,6 +1,22 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Adjust path as needed
 
+// Define the Review model first
+const Review = sequelize.define('reviews', {
+    rating: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+            min: 1,
+            max: 5, // Assuming a rating scale of 1 to 5
+        },
+    },
+    comment: {
+        type: DataTypes.TEXT,
+        allowNull: true, // Make comment optional
+    },
+});
+
 // Define the User model
 const User = sequelize.define('users', {
     id: {
@@ -59,34 +75,18 @@ const User = sequelize.define('users', {
         defaultValue: 'user', // Default to 'user' if not specified
         validate: {
             isIn: [['user', 'admin']], // Optional: validate that it's either 'user' or 'admin'
-        }
+        },
     },
 }, { 
     timestamps: true 
 });
-//123
-// Define the Review model
-const Review = sequelize.define('reviews', {
-    rating: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        validate: {
-            min: 1,
-            max: 5, // Assuming a rating scale of 1 to 5
-        },
-    },
-    comment: {
-        type: DataTypes.TEXT,
-        allowNull: true, // Make comment optional
-    },
-});
 
 // Relationships: A user can receive many reviews, and reviews are given by other users
-User.hasMany(Review, { foreignKey: 'reviewerId', as: 'reviewsGiven' }); // Reviews written by this user
-Review.belongsTo(User, { foreignKey: 'reviewerId', as: 'reviewer' }); // Each review is associated with a user
-
 User.hasMany(Review, { foreignKey: 'userId', as: 'reviewsReceived' }); // Reviews received by this user
 Review.belongsTo(User, { foreignKey: 'userId', as: 'user' }); // Each review is associated with the user being reviewed
+
+User.hasMany(Review, { foreignKey: 'reviewerId', as: 'reviewsGiven' }); // Reviews written by this user
+Review.belongsTo(User, { foreignKey: 'reviewerId', as: 'reviewer' }); // Each review is associated with the user who wrote it
 
 // Export the models
 module.exports = { User, Review };

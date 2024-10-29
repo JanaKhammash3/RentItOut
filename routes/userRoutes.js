@@ -66,30 +66,9 @@ router.post('/verify', authMiddleware(), async (req, res) => {
 });
 
 // Endpoint to leave a review (auth required)
-router.post('/:userId/reviews', authMiddleware(), async (req, res) => {
-    try {
-        const user = await User.findByPk(req.params.userId);
-        if (!user) return res.status(404).json({ message: 'User not found' });
+router.post('/:userId/reviews', authMiddleware(), userController.submitReview);
 
-        const { rating, comment } = req.body;
 
-        // Validate rating
-        if (rating < 1 || rating > 5) {
-            return res.status(400).json({ message: 'Rating must be between 1 and 5.' });
-        }
 
-        const review = await Review.create({
-            userId: user.id,
-            reviewerId: req.user.id,
-            rating,
-            comment
-        });
-
-        res.status(201).json({ message: 'Review submitted successfully', review });
-    } catch (error) {
-        console.error('Review submission error:', error);
-        res.status(500).json({ message: 'Server error during review submission' });
-    }
-});
 
 module.exports = router;

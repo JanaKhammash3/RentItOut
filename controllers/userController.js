@@ -1,6 +1,7 @@
 const { User } = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const  Review  = require('../models/reviewModel'); // Adjust the path if necessary
 
 // In-memory token blacklist
 const tokenBlacklist = [];
@@ -78,6 +79,49 @@ exports.logoutUser = (req, res) => {
   tokenBlacklist.push(token); // Add token to blacklist
   res.status(200).json({ success: true, message: 'User logged out successfully' });
 };
+
+// Ensure the review function has the right checks in place
+exports.submitReview = async (req, res) => {
+  try {
+      const user = await User.findByPk(req.params.userId);
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Check if the reviewer is verified
+      if (!req.user.isVerified) {
+          return res.status(403).json({ message: 'Your account is not verified. You cannot leave a review.' });
+      }
+
+       // Check if the reviewer is verified
+       if (!req.user.isVerified) {  // Add the verification check here
+        return res.status(403).json({ message: 'Your account is not verified. You cannot leave a review.' });
+    }
+      const { rating, comment } = req.body;
+
+      // Validate rating
+      if (rating === undefined || typeof rating !== 'number' || rating < 1 || rating > 5) {
+          return res.status(400).json({ message: 'Rating must be a number between 1 and 5.' });
+      }
+
+      // Create the review
+      const review = await Review.create({
+          userId: user.id,        // User being reviewed
+          reviewerId: req.user.id, // Current user submitting the review
+          rating,
+          comment
+      });
+
+      res.status(201).json({ message: 'Review submitted successfully', review });
+  } catch (error) {
+      console.error('Review submission error:', error);
+      res.status(500).json({ message: 'Server error during review submission', error: error.message });
+  }
+};
+
+
+
+
 
 
 
