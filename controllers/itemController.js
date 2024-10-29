@@ -2,20 +2,22 @@
 const Item  = require('../models/itemModel'); // Adjust model path as needed
 const { User } = require('../models/userModel'); // Import User model to validate ownerId
 
-// Create a new item (POST /items)
 exports.createItem = async (req, res, next) => {
-    
     try {
-        const { name, category, description, pricePerDay, isAvailable, ownerId } = req.body;
+        console.log("User ID from token:", req.userId); // Log the extracted user ID
 
-        // Validate the ownerId
-        const owner = await User.findByPk(ownerId);
+        const { name, category, description, pricePerDay, isAvailable } = req.body;
+
+        // Validate the ownerId (now extracted from the token)
+        const owner = await User.findByPk(req.userId);
+        console.log("Owner retrieved from DB:", owner); // Log the owner retrieved from the database
+        
         if (!owner) {
             return res.status(404).json({ message: 'Owner not found' });
         }
 
         // Add logging to check if the data is being passed correctly
-        console.log("Creating item with data:", { name, category, description, pricePerDay, isAvailable, ownerId });
+        console.log("Creating item with data:", { name, category, description, pricePerDay, isAvailable });
 
         const item = await Item.create({
             name,
@@ -23,7 +25,7 @@ exports.createItem = async (req, res, next) => {
             description,
             pricePerDay,
             isAvailable,
-            ownerId,
+            ownerId: req.userId, // Use the ID from the token
         });
 
         res.status(201).json({
@@ -46,6 +48,7 @@ exports.createItem = async (req, res, next) => {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 // Get all items for a specific user (GET /items/user/:ownerId)
 exports.getItemsByUserId = async (req, res, next) => {
