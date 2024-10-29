@@ -11,7 +11,7 @@ const isTokenBlacklisted = (token) => tokenBlacklist.includes(token);
 // Register a new user
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, phone, idNumber } = req.body;
+    const { name, email, password, phone, idNumber, role } = req.body; // Default role to 'user'
 
     // Validations
     if (!name || !email || !password || !phone || !idNumber) {
@@ -27,26 +27,30 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ error: 'Invalid email format.' });
     }
 
-    // Check for existing user
+    // Ensure role is either 'user' or 'admin'
+    if (role !== 'user' && role !== 'admin') {
+      return res.status(400).json({ error: 'Role must be either "user" or "admin".' });
+  }
+
+    // Check for existing user by email or ID number
     const existingUser = await User.findOne({ where: { email } });
     const existingID = await User.findOne({ where: { idNumber } });
     if (existingUser) return res.status(400).json({ error: 'Email is already in use.' });
     if (existingID) return res.status(400).json({ error: 'ID number is already in use.' });
 
-    // Hash the password and create user
+    // Hash the password and create the user
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hashedPassword, phone, idNumber });
+    const user = await User.create({ name, email, password: hashedPassword, phone, idNumber, role });
 
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
-      user: { id: user.id, name: user.name, email: user.email, phone: user.phone },
+      user: { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role },
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
 // Login user
 exports.loginUser = async (req, res) => {
   try {

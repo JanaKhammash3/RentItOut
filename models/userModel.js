@@ -53,9 +53,13 @@ const User = sequelize.define('users', {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
     },
-    verificationDocuments: {
-        type: DataTypes.JSON,
-        allowNull: true, // Allow this field to be null
+    role: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'user', // Default to 'user' if not specified
+        validate: {
+            isIn: [['user', 'admin']], // Optional: validate that it's either 'user' or 'admin'
+        }
     },
 }, { 
     timestamps: true 
