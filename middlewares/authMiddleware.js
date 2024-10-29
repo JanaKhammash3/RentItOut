@@ -6,20 +6,15 @@ const authMiddleware = (roles = []) => {
     return async (req, res, next) => {
         try {
             // Check for token in headers
-            const token = req.headers['authorization'];
+            const token = req.headers['authorization']?.split(' ')[1];
             if (!token) {
-                return res.status(401).json({ message: 'Authorization header missing, access denied.' });
-            }
-
-            const token2 = token.split(' ')[1];
-            if (!token2) {
                 return res.status(401).json({ message: 'No token provided, access denied.' });
             }
 
             // Verify token and decode payload
             let decoded;
             try {
-                decoded = jwt.verify(token2, process.env.JWT_SECRET);
+                decoded = jwt.verify(token, process.env.JWT_SECRET); // Ensure you have a JWT_SECRET in your .env
             } catch (error) {
                 console.error('Token verification error:', error);
                 return res.status(401).json({ message: 'Invalid token, access denied.' });
@@ -28,38 +23,23 @@ const authMiddleware = (roles = []) => {
             // Fetch the user from the database
             const user = await User.findByPk(decoded.id);
             if (!user) {
-                return res.status(404).json({ message: 'User not found.' });
+                return res.status(401).json({ message: 'User not found, access denied.' });
             }
 
             req.user = user; // Attach the user object to the request
+            req.userId = user.id; // Set the userId to be accessed in the routes
 
             // If roles are specified, check user's role
             if (roles.length && !roles.includes(user.role)) {
                 return res.status(403).json({ message: 'Access denied, insufficient permissions.' });
             }
 
-           
-            next();  // User is authenticated and authorized
+            next(); // User is authenticated and authorized
         } catch (error) {
             console.error('Authentication error:', error); // Log the error for debugging
-            res.status(401).json({ message: 'Invalid token, access denied.' });
-
             res.status(500).json({ message: 'Internal server error during authentication.' });
         }
     };
 };
 
 module.exports = authMiddleware;
-
-
-
-// module.exports = () => {
-//     return (req, res, next) => {
-//         // Your authentication logic here
-//         // If authenticated, call next()
-//         // If not authenticated, respond with an error
-//         next();
-//     };
-// };
-
-// or module.exports = authMiddleware;
