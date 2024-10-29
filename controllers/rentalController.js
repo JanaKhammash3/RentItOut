@@ -1,12 +1,15 @@
-const Rental = require('../models/rentalModel'); // Sequelize Rental model
-const Item = require('../models/itemModel'); // Sequelize Item model
-const {User} = require('../models/userModel'); // Sequelize User model
+// const {Rental} = require('../models/rentalModel');  // Sequelize Rental model
+// const Item = require('../models/itemModel');  // Sequelize Item model
+// const { User } = require('../models/userModel');  // Sequelize User model
 
+const { Rental, Item, User } = require('../models/assosiations');
 
 // POST /rentals: Start a new rental
 exports.startRental = async (req, res, next) => {
+    console.log('startRental function reached');
     try {
-        const { itemId, renterId, startDate, endDate } = req.body;
+        const { itemId, startDate, endDate } = req.body;  // Only include itemId and rental dates
+        const renterId = req.user?.id || 1;  // Extract renterId from the authenticated user
 
         // Fetch item to get pricing information
         const item = await Item.findByPk(itemId);
@@ -14,11 +17,15 @@ exports.startRental = async (req, res, next) => {
             return res.status(404).json({ message: 'Item not found' });
         }
 
-         // Validate renter existence
-         const renter = await User.findByPk(renterId);
-         if (!renter) {
-             return res.status(404).json({ message: 'Renter not found' });
-         }
+        // Check if the item is available
+        if (!item.isAvailable) {
+            return res.status(400).json({ message: 'Item is not available for rent' });
+        }
+
+        // Validate dates
+        if (new Date(startDate) >= new Date(endDate)) {
+            return res.status(400).json({ message: 'End date must be after start date' });
+        }
 
         // Calculate total rental cost (price per day)
         const rentalDays = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
@@ -27,36 +34,48 @@ exports.startRental = async (req, res, next) => {
         // Create the new rental in the database
         const newRental = await Rental.create({
             itemId,
-            renterId,
+            renterId,  // Use authenticated user's ID
             startDate,
             endDate,
             totalCost,
         });
 
-      res.status(201).json({
+        // Mark the item as unavailable after the rental is started
+        item.isAvailable = false;
+        await item.save();
+
+        res.status(201).json({
             success: true,
             message: 'Rental started successfully',
             rental: newRental,
-        })
-     } catch (error) {
+        });
+    } catch (error) {
+        if (error.name === 'SequelizeValidationError') {
+            return res.status(400).json({ message: 'Validation error', errors: error.errors });
+        }
         next(error);
     }
 };
 
 // GET /rentals: View all rentals
 exports.getRentals = async (req, res, next) => {
+    console.log('getRentals function reached');
     try {
         const rentals = await Rental.findAll({
-            include: [{ model: Item, as: 'item' }, { model: User, as: 'renter' }], // Assuming associations are defined
+            include: [
+                { model: Item },  // Include associated Item details
+                { model: User, as: 'renter' }  // Include associated renter details
+            ],
         });
         res.status(200).json(rentals);
     } catch (error) {
-        next(error);
+        console.error('Error in getRentals:', error);
+        res.status(500).json({ error: error.message });
     }
 };
-
 // PUT /rentals/:rentalId: Update rental period and recalculate cost
 exports.updateRental = async (req, res, next) => {
+    console.log('updateRental function reached'); 
     try {
         const { startDate, endDate } = req.body;
         const rental = await Rental.findByPk(req.params.rentalId);
@@ -83,23 +102,53 @@ exports.updateRental = async (req, res, next) => {
 };
 
 // DELETE /rentals/:rentalId: Cancel a rental
+// exports.cancelRental = async (req, res, next) => {
+//     console.log('cancelRental function reached');  // Log to confirm function execution
+//     try {
+//         const rental = await Rental.findByPk(req.params.rentalId);
+//         if (!rental) {
+//             return res.status(404).json({ message: 'Rental not found' });
+//         }
+
+//         // Delete the rental record from the database
+//         await rental.destroy();
+
+//         res.status(200).json({
+//             success: true,
+//             message: 'Rental deleted successfully'
+//         });
+//     } catch (error) {
+//         console.error('Error in cancelRental:', error);  // Log any errors
+//         next(error);
+//     }
+// };
 exports.cancelRental = async (req, res, next) => {
+    console.log('cancelRental function reached');
     try {
+        // Find the rental by ID
         const rental = await Rental.findByPk(req.params.rentalId);
         if (!rental) {
             return res.status(404).json({ message: 'Rental not found' });
         }
 
-        // Set status to 'canceled'
-        rental.status = 'canceled';
-        await rental.save();
+        // Find the associated item using itemId from the rental
+        const item = await Item.findByPk(rental.itemId);
+        if (item) {
+            // Set the item availability to true
+            item.isAvailable = true;
+            await item.save(); // Save the updated item
+        }
+
+        // Delete the rental record from the database
+        await rental.destroy();
 
         res.status(200).json({
             success: true,
-            message: 'Rental canceled',
-            rental,
+            message: 'Rental deleted successfully, item is now available',
         });
-        } catch (error) {
+    } catch (error) {
+        console.error('Error in cancelRental:', error);
         next(error);
     }
 };
+
