@@ -1,47 +1,51 @@
-const Payment = require('../models/paymentModel'); // Import the Payment model
-const Stripe = require('stripe');
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY); // Load Stripe with secret key
-const Rental = require('../models/rentalModel'); // Import Rental model to validate rentalId
-const {User} = require('../models/userModel'); // Import User model to validate userId
+const Payment = require('../models/paymentModel'); 
+const  Rental  = require('../models/rentalModel');
+const { User } = require('../models/userModel');
 
 // POST /payments: Process rental payments and deposits
 exports.processPayment = async (req, res, next) => {
     try {
-        const { userId, rentalId, amount, paymentMethodId, currency = 'usd' } = req.body;
+        const { rentalId, paymentMethod, startDate, endDate } = req.body;
+        const userId = req.user.id;
 
-        // Validate user and rental
+        // Validate user
         const user = await User.findByPk(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
+        // Validate rental
         const rental = await Rental.findByPk(rentalId);
         if (!rental) {
             return res.status(404).json({ success: false, message: 'Rental not found' });
         }
-        // 1. Process payment via Stripe
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount: Math.round(amount * 100), // Convert to smallest currency unit (cents for USD)
-            currency,
-            payment_method: paymentMethodId,
-            confirm: true, // Confirm the payment immediately
-        });
 
-        // 2. Save payment details to MySQL
+        // Use rental's totalCost for amount
+        const amount = rental.totalCost;
+
+        // Set payment status based on the payment method
+        let paymentStatus;
+        if (paymentMethod === 'card') {
+            paymentStatus = 'confirmed';
+        } else if (paymentMethod === 'cash') {
+            paymentStatus = 'pending'; // Pending for cash to be manually confirmed later
+        } else {
+            return res.status(400).json({ success: false, message: 'Invalid payment method' });
+        }
+
+        // Save payment details to the database
         const newPayment = await Payment.create({
             userId,
             rentalId,
             amount,
-            paymentMethod: paymentIntent.payment_method,
-            status: paymentIntent.status, // Store the status from Stripe
+            paymentMethod,
+            status: paymentStatus,
         });
 
-        // 3. Respond with success message and payment data
         res.status(201).json({
             success: true,
             message: 'Payment processed successfully',
             payment: newPayment,
-            paymentIntent,
         });
     } catch (error) {
         console.error('Payment processing error:', error);
@@ -56,7 +60,7 @@ exports.processPayment = async (req, res, next) => {
 // GET /payments: Get all payments
 exports.getAllPayments = async (req, res, next) => {
     try {
-        const payments = await Payment.findAll(); // Example using Sequelize
+        const payments = await Payment.findAll();
         res.status(200).json({
             success: true,
             payments,

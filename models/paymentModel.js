@@ -28,10 +28,11 @@ const Payment = sequelize.define('payments', {
         allowNull: false,
     },
     paymentMethod: {
-        type: DataTypes.STRING, // Store the payment method ID from Stripe
+        type: DataTypes.ENUM('cash', 'card'),
+        allowNull: false,
     },
     status: {
-        type: DataTypes.STRING, // Store Stripe's status (e.g., 'succeeded')
+        type: DataTypes.STRING, // Store payment status (e.g., 'confirmed', 'pending')
         allowNull: false,
     },
 }, {

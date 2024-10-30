@@ -24,7 +24,7 @@ app.use(express.json()); // Parse JSON bodies
 // Route handlers
 app.use('/api/items', itemRoutes);
 app.use('/api/external', externalAPIRoutes);
-app.use('/api/payment', paymentRoutes);
+app.use('/api/payments', paymentRoutes);
 app.use('/api/rentals', rentalRoutes); 
 app.use('/api/users', userRoutes); 
 app.use('/api/reviews', reviewRoutes); // Changed route path for reviews
