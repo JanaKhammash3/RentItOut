@@ -1,6 +1,6 @@
-//Handles CRUD operations for items.
-const Item  = require('../models/itemModel'); // Adjust model path as needed
+const  Item = require('../models/itemModel'); // Adjust model path as needed
 const { User } = require('../models/userModel'); // Import User model to validate ownerId
+const  Rental  = require('../models/rentalModel'); // Import Rental model to check rental status
 
 exports.createItem = async (req, res, next) => {
     try {
@@ -11,7 +11,7 @@ exports.createItem = async (req, res, next) => {
         // Validate the ownerId (now extracted from the token)
         const owner = await User.findByPk(req.userId);
         console.log("Owner retrieved from DB:", owner); // Log the owner retrieved from the database
-        
+
         if (!owner) {
             return res.status(404).json({ message: 'Owner not found' });
         }
@@ -49,15 +49,18 @@ exports.createItem = async (req, res, next) => {
     }
 };
 
-
 // Get all items for a specific user (GET /items/user/:ownerId)
 exports.getItemsByUserId = async (req, res, next) => {
     try {
         const { ownerId } = req.params; // Get ownerId from URL parameters
 
-        // Fetch items based on ownerId
+        // Fetch items based on ownerId and include their rental status
         const items = await Item.findAll({
             where: { ownerId: ownerId }, // Filter by ownerId
+            include: {
+                model: Rental,
+                attributes: ['id', 'startDate', 'endDate', 'totalCost', 'renterId'],
+            },
         });
 
         if (items.length === 0) {
@@ -103,7 +106,12 @@ exports.getItemsByCategory = async (req, res, next) => {
 // Get a specific item by ID (GET /items/:itemId)
 exports.getItemById = async (req, res, next) => {
     try {
-        const item = await Item.findByPk(req.params.itemId); // Use Sequelize's findByPk()
+        const item = await Item.findByPk(req.params.itemId, {
+            include: {
+                model: Rental,
+                attributes: ['id', 'startDate', 'endDate', 'totalCost', 'renterId'],
+            },
+        }); // Use Sequelize's findByPk() and include rental details
         if (!item) {
             return res.status(404).json({ message: 'Item not found' });
         }
@@ -124,14 +132,13 @@ exports.updateItem = async (req, res, next) => {
         if (updatedRows === 0) {
             return res.status(404).json({ message: 'Item not found' });
         }
-        
+
         const updatedItem = updatedItems[0]; // Get the first updated item
         res.status(200).json(updatedItem);
     } catch (error) {
         next(error);
     }
 };
-
 
 // Delete an item (DELETE /items/:itemId)
 exports.deleteItem = async (req, res, next) => {

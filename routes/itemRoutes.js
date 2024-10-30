@@ -17,7 +17,8 @@ router.get('/category/:category', itemController.getItemsByCategory); // New rou
 router.get('/:itemId', itemController.getItemById);
 
 // GET /items/user/:ownerId: Retrieve all items for a specific user
-router.get('/user/:ownerId', itemController.getItemsByUserId); // New route
+router.get('/user/:ownerId', authMiddleware(['admin']), itemController.getItemsByUserId);
+
 
 // PUT /items/:itemId: Update an item
 router.put('/:itemId', itemController.updateItem);
