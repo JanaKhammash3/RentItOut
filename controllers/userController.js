@@ -122,7 +122,7 @@ exports.submitReview = async (req, res) => {
 
 
 
-
+ 
 
 
 // Add this method to userController.js
@@ -212,6 +212,10 @@ exports.getProfile = async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
+        address:user.address,
+        isVerified:user.isVerified,
+        role:user.role,
+        idNumber:user.idNumber,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },
