@@ -27,6 +27,14 @@ const Item = sequelize.define('items', {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
     },
+    latitude: {
+        type: DataTypes.DECIMAL(9, 6),
+        allowNull: false,
+    },
+    longitude: {
+        type: DataTypes.DECIMAL(9, 6),
+        allowNull: false,
+    },
     ownerId: { // Assuming ownerId refers to the User who owns the item
         type: DataTypes.INTEGER, // Adjust based on your User ID type
         allowNull: false,
