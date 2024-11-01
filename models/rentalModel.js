@@ -24,9 +24,28 @@ const Rental = sequelize.define('rentals', {
         type: DataTypes.DATE,
         allowNull: false,
     },
+    deliveryMethod: {
+        type: DataTypes.ENUM('delivery', 'pickup-point', 'in-person'),
+        allowNull: false,
+    },
+    deliveryLocation: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    
+    
     totalCost: {
         type: DataTypes.FLOAT,
         allowNull: false,
+    },
+
+    latitude: {  // Add latitude field
+        type: DataTypes.FLOAT,
+        allowNull: true
+    },
+    longitude: { // Add longitude field
+        type: DataTypes.FLOAT,
+        allowNull: true
     },
     status: {
         type: DataTypes.STRING,
