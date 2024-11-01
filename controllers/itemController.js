@@ -1,23 +1,16 @@
-const  Item = require('../models/itemModel'); // Adjust model path as needed
+const Item = require('../models/itemModel'); // Adjust model path as needed
 const { User } = require('../models/userModel'); // Import User model to validate ownerId
-const  Rental  = require('../models/rentalModel'); // Import Rental model to check rental status
+const Rental = require('../models/rentalModel'); // Import Rental model to check rental status
 
 exports.createItem = async (req, res, next) => {
     try {
-        console.log("User ID from token:", req.userId); // Log the extracted user ID
-
-        const { name, category, description, pricePerDay, isAvailable } = req.body;
+        const { name, category, description, pricePerDay, isAvailable, latitude, longitude } = req.body;
 
         // Validate the ownerId (now extracted from the token)
         const owner = await User.findByPk(req.userId);
-        console.log("Owner retrieved from DB:", owner); // Log the owner retrieved from the database
-
         if (!owner) {
             return res.status(404).json({ message: 'Owner not found' });
         }
-
-        // Add logging to check if the data is being passed correctly
-        console.log("Creating item with data:", { name, category, description, pricePerDay, isAvailable });
 
         const item = await Item.create({
             name,
@@ -26,6 +19,8 @@ exports.createItem = async (req, res, next) => {
             pricePerDay,
             isAvailable,
             ownerId: req.userId, // Use the ID from the token
+            latitude,
+            longitude,
         });
 
         res.status(201).json({
@@ -39,6 +34,8 @@ exports.createItem = async (req, res, next) => {
                 pricePerDay: item.pricePerDay,
                 isAvailable: item.isAvailable,
                 ownerId: item.ownerId,
+                latitude: item.latitude,
+                longitude: item.longitude,
                 createdAt: item.createdAt,
                 updatedAt: item.updatedAt,
             },
