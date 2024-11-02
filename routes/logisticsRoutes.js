@@ -5,6 +5,8 @@ const Delivery = require('../models/deliveryModel'); //
 const authMiddleware = require('../middlewares/authMiddleware');//
 const deliveryController = require('../controllers/deliveryController');
 
+// router.use('/deliveries', logisticsRoutes);
+
 const MAP_API_URL = process.env.MAP_API_URL;
 const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
@@ -23,6 +25,16 @@ const PLACE_KEYWORDS = [
     'party equipment',
     'sports gear'
 ];
+
+router.get('/:rentalId/delivery-options', authMiddleware(), async (req, res) => {
+    try {
+        const deliveryOptions = ['delivery', 'pickup-point', 'in-person'];
+        res.status(200).json({ deliveryOptions });
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving delivery options', error: error.message });
+    }
+});
+
 
 // Endpoint to retrieve nearby locations for pickup/delivery
 router.get('/locations', async (req, res) => {
