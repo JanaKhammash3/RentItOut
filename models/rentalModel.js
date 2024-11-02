@@ -32,13 +32,10 @@ const Rental = sequelize.define('rentals', {
         type: DataTypes.STRING,
         allowNull: true,
     },
-    
-    
     totalCost: {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
-
     latitude: {  // Add latitude field
         type: DataTypes.FLOAT,
         allowNull: true

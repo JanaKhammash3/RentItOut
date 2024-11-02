@@ -1,7 +1,9 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Adjust the path if needed
 const User = require('./userModel'); // Adjust if User model is in a different folder
-const Item = require('./itemModel'); // Adjust if Item model is in a different folder
+//const Item = require('./itemModel'); // Adjust if Item model is in a different folder
+const Rental = require('./rentalModel'); 
+
 
 const Delivery = sequelize.define('deliveries', {
     id: {
@@ -17,14 +19,6 @@ const Delivery = sequelize.define('deliveries', {
             key: 'id',
         },
     },
-    itemId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: Item,
-            key: 'id',
-        },
-    },
     pickupLocation: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -32,6 +26,14 @@ const Delivery = sequelize.define('deliveries', {
     deliveryStatus: {
         type: DataTypes.ENUM('Pending', 'In Transit', 'Completed'),
         defaultValue: 'Pending',
+    },
+    rentalId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Rental,
+            key: 'id',
+        },
     },
 }, {
     timestamps: true,

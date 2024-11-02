@@ -1,16 +1,21 @@
-const { Delivery } = require('../models/deliveryModel');
-const { Item } = require('../models/itemModel'); // Check item availability
-const sequelize = require('../config/database');
+const Delivery = require('../models/deliveryModel');
+// const { Item } = require('../models/itemModel'); // Check item availability
+const Rental = require('../models/rentalModel');
+// const sequelize = require('../config/database');
 
 // Create a new delivery with validations
 exports.createDelivery = async (req, res) => {
-    const { itemId, pickupLocation } = req.body;
+    const { rentalId, pickupLocation } = req.body;
 
     try {
         // Validate item availability
-        const item = await Item.findByPk(itemId);
-        if (!item) {
-            return res.status(404).json({ message: 'Item not found or unavailable' });
+        const rental = await Rental.findByPk(rentalId);
+        if (!rental) {
+            return res.status(404).json({ message: 'Rental not found ' });
+        }
+
+        if (rental.deliveryMethod !== 'delivery' || rental.status !== 'active') {
+            return res.status(400).json({ message: 'Rental is not eligible for delivery' });
         }
 
         if (!pickupLocation) {
@@ -19,12 +24,15 @@ exports.createDelivery = async (req, res) => {
 
         const delivery = await Delivery.create({
             userId: req.user.id,
-            itemId,
+            rentalId,
             pickupLocation,
         });
 
+        console.log('Created Delivery:', delivery);
+
         res.status(201).json({ message: 'Delivery scheduled successfully', delivery });
     } catch (error) {
+        console.error('Error creating delivery:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
