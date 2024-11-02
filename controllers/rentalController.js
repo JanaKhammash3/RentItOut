@@ -5,6 +5,8 @@ const axios = require('axios'); // Add this line at the top of your file
 
 const { Rental, Item, User } = require('../models/assosiations');
 
+
+
 // POST /rentals: Start a new rental
 exports.startRental = async (req, res, next) => {
     console.log('startRental function reached');
@@ -31,7 +33,7 @@ exports.startRental = async (req, res, next) => {
         // Calculate total rental cost (price per day)
         const rentalDays = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
         let totalCost = rentalDays * item.pricePerDay;
-        let locationResponse;
+        // let locationResponse;
 
         if (deliveryMethod === 'delivery') {
             if (!deliveryLocation) {
@@ -39,33 +41,31 @@ exports.startRental = async (req, res, next) => {
             }
             totalCost += 10; // Constant delivery cost
                  // Create the new rental in the database
-              const newRental = await Rental.create({
+            const newRental = await Rental.create({
                 itemId,
-                 renterId,  // Use authenticated user's ID
-                      startDate,
-                    endDate,
-                      deliveryMethod,
-                          deliveryLocation,
-                          totalCost,
-                            //  latitude,   // Add latitude to the rental
-                            //  longitude ,
-                                    });
+                renterId,  // Use authenticated user's ID
+                startDate,
+                endDate,
+                deliveryMethod,
+                deliveryLocation,
+                totalCost,
+                //  latitude,   // Add latitude to the rental
+                //  longitude ,
+            });
+            
+            item.isAvailable = false;
+            await item.save();
+            await newRental.save();
 
-
-
-         item.isAvailable = false;
-        await item.save();
-        await newRental.save();
-
-        res.status(201).json({
-            success: true,
-            message: 'Rental started successfully',
-            rental: newRental,
-        });
+            res.status(201).json({
+                success: true,
+                message: 'Rental started successfully',
+                rental: newRental,
+            });
         }
-
-               // Check if delivery method is pickup-point
-       else  if (deliveryMethod === 'pickup-point') {
+         
+        // Check if delivery method is pickup-point
+       else if (deliveryMethod === 'pickup-point') {
 
             // Your logic to fetch locations
             const { latitude, longitude } = req.body;
@@ -73,23 +73,21 @@ exports.startRental = async (req, res, next) => {
                 return res.status(400).json({ message: 'Coordinates required for pickup-point.' });
             }
             let locationResponse;
-
-                    // Fetch nearby pickup locations
-                 locationResponse = await axios.get(`http://localhost:5000/api/deliveries/locations`, {
-                   params: { latitude, longitude }
-                });
-
-                if (!locationResponse.data.locations || locationResponse.data.locations.length === 0) {
-                    return res.status(404).json({ message: 'No nearby pickup locations found.' });
-                }
-                deliveryLocation = locationResponse.data.locations[0].address || locationResponse.data.locations[0].name;
-                if (typeof deliveryLocation !== 'string') {
-                    return res.status(500).json({ message: 'Invalid format for delivery location.' });
-                }
             
+            // Fetch nearby pickup locations
+            locationResponse = await axios.get(`http://localhost:5000/api/deliveries/locations`, {
+                params: { latitude, longitude }
+            });
 
-
-
+            if (!locationResponse.data.locations || locationResponse.data.locations.length === 0) {
+                return res.status(404).json({ message: 'No nearby pickup locations found.' });
+            }
+            
+            deliveryLocation = locationResponse.data.locations[0].address || locationResponse.data.locations[0].name;
+            if (typeof deliveryLocation !== 'string') {
+                return res.status(500).json({ message: 'Invalid format for delivery location.' });
+            }
+            
 
 
                 // return res.status(200).json({
@@ -109,10 +107,6 @@ exports.startRental = async (req, res, next) => {
             //   return res.status(500).json({ message: 'Invalid format for delivery location.' });
             //          }
                     
-                    
-
-    
-
         // Create the new rental in the database
         const newRental = await Rental.create({
             itemId,
@@ -134,6 +128,74 @@ exports.startRental = async (req, res, next) => {
             
             });
        }
+       
+       else if (deliveryMethod === 'in-person') {
+            // console.log('Item coordinates:', item.latitude, item.longitude);
+        
+            // Check if item has coordinates
+            if (!item.latitude || !item.longitude) {
+                return res.status(400).json({ message: 'Item location coordinates are missing.' });
+            }
+        
+            // Create the new rental in the database
+            const newRental = await Rental.create({
+                itemId,
+                renterId,
+                startDate,
+                endDate,
+                deliveryMethod,
+                deliveryLocation: `${item.latitude},${item.longitude}`, // Store the coordinates
+                totalCost,
+            });
+        
+            // Mark the item as unavailable
+            item.isAvailable = false;
+            await item.save();
+        
+            // Construct the Google Maps link
+            const googleMapsLink = `https://www.google.com/maps/?q=${item.latitude},${item.longitude}`;
+        
+            // Get the address from Google Maps Geocoding API
+            const geocodingApiKey = process.env.GOOGLE_MAPS_API_KEY; // Ensure your API key is stored in .env
+            const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${item.latitude},${item.longitude}&key=${geocodingApiKey}`;
+        
+            try {
+                const response = await axios.get(geocodeUrl);
+                const address = response.data.results[0] ? response.data.results[0].formatted_address : 'Address not found';
+        
+                // Return the response including the address and Google Maps link with additional fields
+                return res.status(201).json({
+                    success: true,
+                    message: 'Rental started successfully',
+                    rental: {
+                        status: "active",
+                        id: newRental.id, // ID from the created rental
+                        itemId: itemId,
+                        renterId: renterId,
+                        startDate: startDate,
+                        endDate: endDate,
+                        deliveryMethod: deliveryMethod,
+                        totalCost: newRental.totalCost,
+                        updatedAt: newRental.updatedAt, // Assuming the rental model has this
+                        createdAt: newRental.createdAt, // Assuming the rental model has this
+                        'item location': googleMapsLink, // Google Maps link
+                        address: address // Include the address from Geocoding API
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching address from Geocoding API:', error);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Error fetching location details',
+                    error: error.message
+                });
+            }
+        }
+                
+        //  else {
+    //     // Handle unknown deliveryMethod values
+    //     return res.status(400).json({ message: 'Invalid delivery method' });
+    // }
         
     //     // Mark the item as unavailable after the rental is started
     //    item.isAvailable = false;
@@ -248,4 +310,3 @@ exports.cancelRental = async (req, res, next) => {
         next(error);
     }
 };
-

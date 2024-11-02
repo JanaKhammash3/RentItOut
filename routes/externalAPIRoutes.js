@@ -3,7 +3,10 @@ const router = express.Router();
 const externalAPIController = require('../controllers/externalAPIController'); 
 
 // Extracting the function
-const { getLocationData, verifyInsurance } = externalAPIController;
+const { getLocationData, verifyInsurance, getMapUrl } = externalAPIController;
+
+//  route to handle latitude and longitude
+router.get('/location', getMapUrl); ////
 
 router.get('/location/:address', getLocationData);
 router.post('/insurance/verify', verifyInsurance);

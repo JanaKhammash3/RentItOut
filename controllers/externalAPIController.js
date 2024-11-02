@@ -34,3 +34,17 @@ exports.verifyInsurance = async (req, res, next) => {
     }
 };
 
+///////////
+exports.getMapUrl = async (req, res) => {
+    const { latitude, longitude } = req.query;
+
+    if (!latitude || !longitude) {
+        return res.status(400).json({ message: 'Coordinates are required.' });
+    }
+
+    // Construct Google Maps URL with the coordinates and API key from .env
+    const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=15&size=600x300&maptype=roadmap
+        &markers=color:red%7Clabel:C%7C${latitude},${longitude}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+
+    return res.status(200).json({ mapUrl });
+};
