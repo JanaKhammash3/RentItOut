@@ -7,13 +7,13 @@ const axios = require('axios');
 
 // Create a new delivery with validations
 exports.createDelivery = async (req, res) => {
-    const { rentalId} = req.body;
+    const { rentalId } = req.body;
 
     try {
         // Validate item availability
         const rental = await Rental.findByPk(rentalId);
         if (!rental) {
-            return res.status(404).json({ message: 'Rental not found ' });
+            return res.status(404).json({ message: 'Rental not found' });
         }
 
         // Check if renterId is the same as userId
@@ -25,31 +25,46 @@ exports.createDelivery = async (req, res) => {
             return res.status(400).json({ message: 'Rental is not eligible for delivery' });
         }
 
-        // Get itemId from rental and then find the item's location
+        // Get itemId from rental and then find the item's location for pickupLocation
         const item = await Item.findByPk(rental.itemId);
         if (!item) {
             return res.status(404).json({ message: 'Item not found' });
         }
 
-        const { latitude, longitude } = item; // Assuming these fields exist in your items table
+        // Get the latitude and longitude for pickupLocation from items table
+        const { latitude: itemLatitude, longitude: itemLongitude } = item; 
 
-        // Use Google Maps Geocoding API to get the address from the latitude and longitude
+        // Get the latitude and longitude for deliveryLocation from rentals table
+        const { latitude: rentalLatitude, longitude: rentalLongitude } = rental;
+
+        // Use Google Maps Geocoding API to get the pickupLocation address
         const geocodingApiKey = process.env.GOOGLE_MAPS_API_KEY; // Use your actual API key
-        const geocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${geocodingApiKey}`;
+        const pickupGeocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${itemLatitude},${itemLongitude}&key=${geocodingApiKey}`;
+        const pickupGeocodingResponse = await axios.get(pickupGeocodingUrl);
+        const pickupLocation = pickupGeocodingResponse.data.results[0]?.formatted_address;
 
-        const geocodingResponse = await axios.get(geocodingUrl);
-        const address = geocodingResponse.data.results[0]?.formatted_address;
-
-        if (!address) {
-            return res.status(400).json({ message: 'Unable to get address from location' });
+        if (!pickupLocation) {
+            return res.status(400).json({ message: 'Unable to get pickup location address from item location' });
         }
 
+        // Use Google Maps Geocoding API to get the deliveryLocation address
+        const deliveryGeocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${rentalLatitude},${rentalLongitude}&key=${geocodingApiKey}`;
+        const deliveryGeocodingResponse = await axios.get(deliveryGeocodingUrl);
+        const deliveryLocation = deliveryGeocodingResponse.data.results[0]?.formatted_address;
+
+        if (!deliveryLocation) {
+            return res.status(400).json({ message: 'Unable to get delivery location address from rental location' });
+        }
+
+        // Create the delivery with both pickupLocation and deliveryLocation
         const delivery = await Delivery.create({
             userId: req.user.id, 
             rentalId,
-            pickupLocation: address,
+            pickupLocation,
+            deliveryLocation,
         });
 
+        // Update rental status to 'in-delivery'
         await Rental.update(
             { status: 'in-delivery' }, // New status
             { where: { id: rentalId } } // Condition
