@@ -192,21 +192,21 @@ exports.startRental = async (req, res, next) => {
             }
         }
                 
-        //  else {
-    //     // Handle unknown deliveryMethod values
-    //     return res.status(400).json({ message: 'Invalid delivery method' });
-    // }
+        else {
+        // Handle unknown deliveryMethod values
+        return res.status(400).json({ message: 'Invalid delivery method' });
+        }
         
-    //     // Mark the item as unavailable after the rental is started
-    //    item.isAvailable = false;
-    //     await item.save();
-    //     await newRental.save();
+        // Mark the item as unavailable after the rental is started
+       item.isAvailable = false;
+        await item.save();
+        await newRental.save();
 
-    //     res.status(201).json({
-    //         success: true,
-    //         message: 'Rental started successfully',
-    //         rental: newRental,
-    //     });
+        res.status(201).json({
+            success: true,
+            message: 'Rental started successfully',
+            rental: newRental,
+        });
                            
     } catch (error) {
         if (error.name === 'SequelizeValidationError') {
