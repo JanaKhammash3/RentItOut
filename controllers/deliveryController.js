@@ -5,47 +5,7 @@ const Rental = require('../models/rentalModel');
 
 const axios = require('axios');
 
-/*
 // Create a new delivery with validations
-exports.createDelivery = async (req, res) => {
-    const { rentalId, pickupLocation } = req.body;
-
-    try {
-        // Validate item availability
-        const rental = await Rental.findByPk(rentalId);
-        if (!rental) {
-            return res.status(404).json({ message: 'Rental not found ' });
-        }
-
-        if (rental.deliveryMethod !== 'delivery' || rental.status !== 'active') {
-            return res.status(400).json({ message: 'Rental is not eligible for delivery' });
-        }
-
-        if (!pickupLocation) {
-            return res.status(400).json({ message: 'Pickup location is required' });
-        }
-
-        const delivery = await Delivery.create({
-            userId: req.user.id,
-            rentalId,
-            pickupLocation,
-        });
-
-        await Rental.update(
-            { status: 'in-delivery' }, // New status
-            { where: { id: rentalId } } // Condition
-        );
-
-        console.log('Created Delivery:', delivery);
-
-        res.status(201).json({ message: 'Delivery scheduled successfully', delivery });
-    } catch (error) {
-        console.error('Error creating delivery:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-};
-*/
-
 exports.createDelivery = async (req, res) => {
     const { rentalId} = req.body;
 
@@ -54,6 +14,11 @@ exports.createDelivery = async (req, res) => {
         const rental = await Rental.findByPk(rentalId);
         if (!rental) {
             return res.status(404).json({ message: 'Rental not found ' });
+        }
+
+        // Check if renterId is the same as userId
+        if (rental.renterId === req.user.id) {
+            return res.status(400).json({ message: 'Invalid: Renter cannot create delivery for their own rental' });
         }
 
         if (rental.deliveryMethod !== 'delivery' || rental.status !== 'active') {
@@ -80,7 +45,7 @@ exports.createDelivery = async (req, res) => {
         }
 
         const delivery = await Delivery.create({
-            userId: req.user.id,
+            userId: req.user.id, 
             rentalId,
             pickupLocation: address,
         });
