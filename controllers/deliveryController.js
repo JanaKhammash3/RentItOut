@@ -28,6 +28,11 @@ exports.createDelivery = async (req, res) => {
             pickupLocation,
         });
 
+        await Rental.update(
+            { status: 'in-delivery' }, // New status
+            { where: { id: rentalId } } // Condition
+        );
+
         console.log('Created Delivery:', delivery);
 
         res.status(201).json({ message: 'Delivery scheduled successfully', delivery });
