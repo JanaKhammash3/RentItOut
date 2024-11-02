@@ -35,6 +35,10 @@ const Delivery = sequelize.define('deliveries', {
             key: 'id',
         },
     },
+    deliveryLocation: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
 }, {
     timestamps: true,
     tableName: 'deliveries', // Optional: Specify table name if needed

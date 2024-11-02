@@ -36,9 +36,14 @@ exports.startRental = async (req, res, next) => {
         // let locationResponse;
 
         if (deliveryMethod === 'delivery') {
-            if (!deliveryLocation) {
-                return res.status(400).json({ message: 'Delivery location required for delivery method' });
+            // if (!deliveryLocation) {
+            //     return res.status(400).json({ message: 'Delivery location required for delivery method' });
+            // }
+            const { latitude, longitude } = req.body;
+            if (!latitude || !longitude) {
+                return res.status(400).json({ message: 'Coordinates required for delivery location.' });
             }
+
             totalCost += 10; // Constant delivery cost
                  // Create the new rental in the database
             const newRental = await Rental.create({
@@ -47,10 +52,10 @@ exports.startRental = async (req, res, next) => {
                 startDate,
                 endDate,
                 deliveryMethod,
-                deliveryLocation,
+                // deliveryLocation,
                 totalCost,
-                //  latitude,   // Add latitude to the rental
-                //  longitude ,
+                 latitude,   // Add latitude to the rental
+                 longitude ,
             });
             
             item.isAvailable = false;
@@ -144,7 +149,7 @@ exports.startRental = async (req, res, next) => {
                 startDate,
                 endDate,
                 deliveryMethod,
-                deliveryLocation: `${item.latitude},${item.longitude}`, // Store the coordinates
+                //deliveryLocation: `${item.latitude},${item.longitude}`, // Store the coordinates
                 totalCost,
             });
         
