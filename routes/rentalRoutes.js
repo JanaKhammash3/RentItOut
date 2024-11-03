@@ -10,7 +10,7 @@ router.post('/',authMiddleware(),rentalController.startRental);
 router.get('/',  authMiddleware(), rentalController.getRentals); // Auth required
 
 router.put('/:rentalId', authMiddleware(['admin']), rentalController.updateRental);
-
+router.get('/myrentals', authMiddleware(), rentalController.getUserRentals);
 
 router.delete('/:rentalId', authMiddleware(['admin']), rentalController.cancelRental);
 

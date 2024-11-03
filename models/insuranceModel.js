@@ -1,38 +1,25 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // Adjust path as needed
+const sequelize = require('../config/database');
 
-const Insurance = sequelize.define('insurances', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-    },
+const Insurance = sequelize.define('insurance', {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: 'users', // Reference to User table
-            key: 'id',
-        },
+        references: { model: 'users', key: 'id' }
     },
     itemId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: 'items', // Reference to Item table
-            key: 'id',
-        },
+        references: { model: 'items', key: 'id' }
     },
     coverageAmount: {
         type: DataTypes.FLOAT,
-        allowNull: false,
+        allowNull: false
     },
     status: {
         type: DataTypes.STRING,
-        defaultValue: 'active',
-    },
-}, {
-    timestamps: true,
-});
+        defaultValue: 'active'
+    }
+}, { timestamps: true });
 
 module.exports = Insurance;

@@ -315,3 +315,33 @@ exports.cancelRental = async (req, res, next) => {
         next(error);
     }
 };
+exports.getUserRentals = async (req, res) => {
+    try {
+        const userId = req.user.id; // Get user ID from token middleware
+        console.log(userId);
+
+        // Find rentals where the renterId matches the user's ID
+        const userRentals = await Rental.findAll({
+            where: { renterId: userId },
+        });
+
+        if (!userRentals || userRentals.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No rentals found for this user',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            rentals: userRentals,
+        });
+    } catch (error) {
+        console.error('Error fetching user rentals:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch user rentals',
+            error: error.message,
+        });
+    }
+};

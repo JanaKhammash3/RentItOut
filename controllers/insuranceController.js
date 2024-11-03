@@ -1,78 +1,51 @@
-const  Insurance = require('../models/insuranceModel'); // Import Insurance model
-const { User } = require('../models/userModel'); // Import User model
-const  Item = require('../models/itemModel'); // Import Item model
+const Insurance = require('../models/insuranceModel');
+const Rental = require('../models/rentalModel');
+const { User } = require('../models/userModel');
 
-
-// POST /insurance: Purchase insurance
-exports.purchaseInsurance = async (req, res, next) => {
+// Admin-only function to add insurance for a rental
+exports.addInsurance = async (req, res) => {
     try {
         const { userId, itemId, coverageAmount } = req.body;
 
+        // Validate user and rental existence
         const user = await User.findByPk(userId);
-        const item = await Item.findByPk(itemId);
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+        const rental = await Rental.findOne({ where: { itemId, renterId: userId } });
+        if (!user || !rental) {
+            return res.status(404).json({ success: false, message: 'User or Rental not found' });
         }
 
-        if (!item) {
-            return res.status(404).json({ message: 'Item not found' });
-        }
-
-        // Create a new insurance policy
+        // Add insurance
         const newInsurance = await Insurance.create({
             userId,
             itemId,
             coverageAmount,
-            status: 'active',
+            status: 'active'
         });
 
         res.status(201).json({
             success: true,
-            message: 'Insurance purchased successfully',
-            insurance: newInsurance,
+            message: 'Insurance added successfully',
+            insurance: newInsurance
         });
     } catch (error) {
-        next(error); // Pass to error handling middleware
+        console.error('Error adding insurance:', error);
+        res.status(500).json({ success: false, message: 'Failed to add insurance', error: error.message });
     }
 };
 
-// GET /insurance/:userId: Get all insurances for a user
-exports.getUserInsurances = async (req, res, next) => {
+// Fetch insurance for a specific rental
+exports.getInsurance = async (req, res) => {
     try {
-        const { userId } = req.params;
-        const user = await User.findByPk(userId);
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        const insurances = await Insurance.findAll({ where: { userId } });
-
-        if (!insurances.length) {
-            return res.status(404).json({ message: 'No insurance policies found' });
-        }
-
-        res.status(200).json(insurances);
-    } catch (error) {
-        next(error);
-    }
-};
-
-// DELETE /insurance/:insuranceId: Cancel an insurance policy
-exports.cancelInsurance = async (req, res, next) => {
-    try {
-        const { insuranceId } = req.params;
-        const insurance = await Insurance.findByPk(insuranceId);
+        const { rentalId } = req.params;
+        const insurance = await Insurance.findOne({ where: { rentalId } });
 
         if (!insurance) {
-            return res.status(404).json({ message: 'Insurance not found' });
+            return res.status(404).json({ success: false, message: 'Insurance not found' });
         }
 
-        insurance.status = 'canceled';
-        await insurance.save();
-
-        res.status(200).json({ message: 'Insurance canceled', insurance });
+        res.status(200).json({ success: true, insurance });
     } catch (error) {
-        next(error);
+        console.error('Error fetching insurance:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch insurance', error: error.message });
     }
 };

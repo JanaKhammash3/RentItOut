@@ -10,6 +10,7 @@ const rentalRoutes = require('./routes/rentalRoutes');
 const userRoutes = require('./routes/userRoutes');
 const deliveriesRouter = require('./routes/logisticsRoutes');
 const reviewRoutes = require('./routes/reviewRoutes'); // Ensure this path is correct
+const insuranceRoute = require('./routes/insuranceRoute');
 
 const errorHandler = require('./utils/errorHandler');
 const sequelize = require('./config/database');
@@ -29,6 +30,7 @@ app.use('/api/rentals', rentalRoutes);
 app.use('/api/users', userRoutes); 
 app.use('/api/reviews', reviewRoutes); // Changed route path for reviews
 app.use('/api/deliveries', deliveriesRouter);
+app.use('/api/insurance', insuranceRoute);
 
 // Error handling middleware
 app.use(errorHandler);
