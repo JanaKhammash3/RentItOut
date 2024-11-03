@@ -109,10 +109,23 @@ exports.updatePayment = async (req, res, next) => {
             return res.status(403).json({ success: false, message: 'Unauthorized: You can only update your own payments' });
         }
 
-        // Update payment details if provided
-        if (paymentMethod) payment.paymentMethod = paymentMethod;
-        if (status) payment.status = status;
-        
+        // Update payment method if provided
+        if (paymentMethod) {
+            payment.paymentMethod = paymentMethod;
+
+            // Set status based on the payment method
+            if (paymentMethod === 'card') {
+                payment.status = 'confirmed';
+            } else if (paymentMethod === 'cash') {
+                payment.status = 'pending';
+            }
+        }
+
+        // Update payment status if provided and no payment method change occurred
+        if (status && !paymentMethod) {
+            payment.status = status;
+        }
+
         // Save the updated payment
         await payment.save();
 
@@ -130,6 +143,7 @@ exports.updatePayment = async (req, res, next) => {
         });
     }
 };
+
 
 
 // GET /payments/:id: Get a specific payment by ID
