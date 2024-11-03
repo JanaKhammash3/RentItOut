@@ -140,13 +140,24 @@ exports.updateItem = async (req, res, next) => {
 // Delete an item (DELETE /items/:itemId)
 exports.deleteItem = async (req, res, next) => {
     try {
+        const item = await Item.findByPk(req.params.itemId);
+        if (!item) {
+            return res.status(404).json({ message: 'Item not found' });
+        }
+
+        if (item.ownerId !== req.userId) {
+            return res.status(403).json({ message: 'You do not have permission to delete this item' });
+        }
+
+        // Optionally delete related deliveries if applicable
+        await Delivery.destroy({
+            where: { rentalId: item.rentalId } // Adjust this based on your relationships
+        });
+
         const deletedRows = await Item.destroy({
             where: { id: req.params.itemId },
         });
 
-        if (deletedRows === 0) {
-            return res.status(404).json({ message: 'Item not found' });
-        }
         res.status(200).json({ message: 'Item deleted successfully' });
     } catch (error) {
         next(error);
