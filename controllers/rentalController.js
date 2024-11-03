@@ -345,3 +345,36 @@ exports.getUserRentals = async (req, res) => {
         });
     }
 };
+
+exports.updateRentalStatus = async (req, res) => {
+    const { id } = req.params; // Get rental ID from request parameters
+    const userId = req.user.id; // Get user ID from token middleware
+
+    try {
+        // Find the rental
+        const rental = await Rental.findByPk(id);
+        if (!rental) {
+            return res.status(404).json({ message: 'Rental not found' });
+        }
+
+        // Check if the rental belongs to the user
+        if (rental.renterId !== userId) {
+            return res.status(403).json({ message: 'You do not have permission to update this rental' });
+        }
+
+        // Check the current status
+        if (rental.status !== 'in-delivery') {
+            return res.status(400).json({ message: 'Rental must be in-delivery to mark as received' });
+        }
+
+        // Update the rental status to received
+        rental.status = 'received';
+        await rental.save();
+
+        res.status(200).json({ message: 'Rental status updated to received successfully' });
+    } catch (error) {
+        console.error('Error updating rental status:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
