@@ -2,8 +2,10 @@
 // const Item = require('../models/itemModel');  // Sequelize Item model
 // const { User } = require('../models/userModel');  // Sequelize User model
 const axios = require('axios'); // Add this line at the top of your file
+const Delivery = require('../models/deliveryModel');  
 
 const { Rental, Item, User } = require('../models/assosiations');
+
 
 
 
@@ -363,15 +365,22 @@ exports.updateRentalStatus = async (req, res) => {
         }
 
         // Check the current status
-        if (rental.status !== 'in-delivery') {
-            return res.status(400).json({ message: 'Rental must be in-delivery to mark as received' });
+        if (rental.status !== 'in-transit') {
+            return res.status(400).json({ message: 'Rental must be in-transit to mark as received' });
         }
 
         // Update the rental status to received
         rental.status = 'received';
         await rental.save();
 
-        res.status(200).json({ message: 'Rental status updated to received successfully' });
+        // Update the associated delivery status to 'delivered'
+        const delivery = await Delivery.findOne({ where: { rentalId: id } });
+        if (delivery) {
+            delivery.deliveryStatus = 'Completed'; // Change this if your status naming differs
+            await delivery.save();
+        }
+
+        res.status(200).json({ message: 'Rental status updated to received successfully, and delivery status updated' });
     } catch (error) {
         console.error('Error updating rental status:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
