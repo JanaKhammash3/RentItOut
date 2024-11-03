@@ -6,9 +6,6 @@ const Delivery = require('../models/deliveryModel');
 
 const { Rental, Item, User, Insurance } = require('../models/assosiations');
 
-
-
-
 // POST /rentals: Start a new rental
 exports.startRental = async (req, res, next) => {
     console.log('startRental function reached');
@@ -297,27 +294,6 @@ exports.updateRental = async (req, res, next) => {
     }
 };
 
-// DELETE /rentals/:rentalId: Cancel a rental
-// exports.cancelRental = async (req, res, next) => {
-//     console.log('cancelRental function reached');  // Log to confirm function execution
-//     try {
-//         const rental = await Rental.findByPk(req.params.rentalId);
-//         if (!rental) {
-//             return res.status(404).json({ message: 'Rental not found' });
-//         }
-
-//         // Delete the rental record from the database
-//         await rental.destroy();
-
-//         res.status(200).json({
-//             success: true,
-//             message: 'Rental deleted successfully'
-//         });
-//     } catch (error) {
-//         console.error('Error in cancelRental:', error);  // Log any errors
-//         next(error);
-//     }
-// };
 exports.cancelRental = async (req, res, next) => {
     console.log('cancelRental function reached');
     try {
