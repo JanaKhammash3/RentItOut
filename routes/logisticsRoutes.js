@@ -112,4 +112,10 @@ router.post('/delivery', authMiddleware(), deliveryController.createDelivery); /
 // Example: View delivery logs (only accessible by admin)
 router.get('/logs', authMiddleware(['admin']), deliveryController.getAllDeliveries); // Use the appropriate method from deliveryController
 
+router.get('/my-deliveries', authMiddleware(), deliveryController.getUserDeliveries);
+
+// Route to delete a delivery
+router.delete('/:id', authMiddleware(), deliveryController.deleteDelivery);
+
+
 module.exports = router;
