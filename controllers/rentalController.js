@@ -223,6 +223,36 @@ exports.startRental = async (req, res, next) => {
     }
 };
 
+// Function to update item availability based on rental end date
+const updateRentalStatusAndAvailability = async () => {
+    try {
+        const currentDate = new Date();
+
+        const expiredRentals = await Rental.findAll({
+            where: {
+                endDate: {
+                    [Op.lt]: currentDate
+                }
+            },
+            include: [Item]
+        });
+
+        for (const rental of expiredRentals) {
+            const item = rental.Item;
+
+            if (item) {
+                item.isAvailable = true;
+                await item.save();
+            }
+        }
+
+        console.log(`Updated availability for ${expiredRentals.length} items.`);
+    } catch (error) {
+        console.error('Error updating rental statuses:', error);
+    }
+};
+
+
 // GET /rentals: View all rentals
 exports.getRentals = async (req, res, next) => {
     console.log('getRentals function reached');
