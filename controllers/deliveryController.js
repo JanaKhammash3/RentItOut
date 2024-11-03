@@ -144,7 +144,6 @@ exports.deleteDelivery = async (req, res) => {
     }
 };
 
-
 // Update delivery status to 'in-transit'
 exports.updateDeliveryStatus = async (req, res) => {
     const { id } = req.params; // Get delivery ID from request parameters
@@ -172,7 +171,13 @@ exports.updateDeliveryStatus = async (req, res) => {
             { where: { id } }
         );
 
-        res.status(200).json({ message: 'Delivery status updated to in-transit successfully' });
+        // Update the associated rental status to 'in-transit'
+        await Rental.update(
+            { status: 'in-transit' }, // Change this if your status naming differs
+            { where: { id: delivery.rentalId } } // Ensure rentalId exists in the Delivery model
+        );
+
+        res.status(200).json({ message: 'Delivery status updated to in-transit successfully and rental status updated' });
     } catch (error) {
         console.error('Error updating delivery status:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
