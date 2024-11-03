@@ -3,7 +3,7 @@ const router = express.Router();
 const rentalController = require('../controllers/rentalController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
-console.log(rentalController);
+
 
 
 router.post('/',authMiddleware(),rentalController.startRental);

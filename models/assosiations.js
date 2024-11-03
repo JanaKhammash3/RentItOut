@@ -1,12 +1,16 @@
+// models/associations.js or similar file
 const Rental = require('./rentalModel');
+const Insurance = require('./insuranceModel');
 const Item = require('./itemModel');
-const {User} = require('./userModel'); // Assuming User model is already defined
+const { User } = require('./userModel');
 
-// Define associations
-Rental.belongsTo(Item, { foreignKey: 'itemId' });  // Each Rental belongs to a specific Item
-Item.hasMany(Rental, { foreignKey: 'itemId' });  // Each Item can have multiple Rentals
+// Associations for Insurance and Rental
+Rental.hasOne(Insurance, { foreignKey: 'rentalId', as: 'insurance' });
+Insurance.belongsTo(Rental, { foreignKey: 'rentalId' });
+Insurance.belongsTo(User, { foreignKey: 'userId' });
+Insurance.belongsTo(Item, { foreignKey: 'itemId' });
 
-Rental.belongsTo(User, { as: 'renter', foreignKey: 'renterId' });
-User.hasMany(Rental, { foreignKey: 'renterId', as: 'rentals' });
-
-module.exports = { Rental, Item, User };
+// Associations for Rental and User
+Rental.belongsTo(User, { foreignKey: 'renterId', as: 'renter' });
+Rental.belongsTo(Item, { foreignKey: 'itemId' });
+module.exports = { Rental, Insurance, Item, User };

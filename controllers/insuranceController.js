@@ -1,35 +1,52 @@
 const Insurance = require('../models/insuranceModel');
 const Rental = require('../models/rentalModel');
 const { User } = require('../models/userModel');
+const Item = require('../models/itemModel');
 
 // Admin-only function to add insurance for a rental
 exports.addInsurance = async (req, res) => {
     try {
-        const { userId, itemId, coverageAmount } = req.body;
+        const { userId, itemId, rentalId, coverageAmount, status } = req.body;
 
-        // Validate user and rental existence
+        // Validate user existence
         const user = await User.findByPk(userId);
-        const rental = await Rental.findOne({ where: { itemId, renterId: userId } });
-        if (!user || !rental) {
-            return res.status(404).json({ success: false, message: 'User or Rental not found' });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        // Add insurance
+        // Validate item existence
+        const item = await Item.findByPk(itemId);
+        if (!item) {
+            return res.status(404).json({ success: false, message: 'Item not found' });
+        }
+
+        // Validate rental existence
+        const rental = await Rental.findByPk(rentalId);
+        if (!rental) {
+            return res.status(404).json({ success: false, message: 'Rental not found' });
+        }
+
+        // Create insurance with the validated user, item, and rental
         const newInsurance = await Insurance.create({
-            userId,
-            itemId,
+            userId: user.id,
+            itemId: item.id,
+            rentalId: rental.id,
             coverageAmount,
-            status: 'active'
+            status,
         });
 
         res.status(201).json({
             success: true,
             message: 'Insurance added successfully',
-            insurance: newInsurance
+            insurance: newInsurance,
         });
     } catch (error) {
-        console.error('Error adding insurance:', error);
-        res.status(500).json({ success: false, message: 'Failed to add insurance', error: error.message });
+        console.error('Error in addInsurance:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to add insurance',
+            error: error.message,
+        });
     }
 };
 

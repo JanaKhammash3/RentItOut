@@ -3,7 +3,7 @@
 // const { User } = require('../models/userModel');  // Sequelize User model
 const axios = require('axios'); // Add this line at the top of your file
 
-const { Rental, Item, User } = require('../models/assosiations');
+const { Rental, Item, User, Insurance } = require('../models/assosiations');
 
 
 
@@ -315,14 +315,26 @@ exports.cancelRental = async (req, res, next) => {
         next(error);
     }
 };
+
+
 exports.getUserRentals = async (req, res) => {
     try {
-        const userId = req.user.id; // Get user ID from token middleware
-        console.log(userId);
+        const userId = req.user.id;
 
-        // Find rentals where the renterId matches the user's ID
+        // Find rentals where the renterId matches the user's ID, including the associated insurance and item
         const userRentals = await Rental.findAll({
             where: { renterId: userId },
+            include: [
+                {
+                    model: Insurance,
+                    as: 'insurance', // Ensure this matches the alias used in the association
+                    required: false, // Left join to include rentals without insurance
+                },
+                {
+                    model: Item,
+                    attributes: ['name', 'description', 'pricePerDay']
+                }
+            ],
         });
 
         if (!userRentals || userRentals.length === 0) {
@@ -334,7 +346,10 @@ exports.getUserRentals = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            rentals: userRentals,
+            rentals: userRentals.map(rental => ({
+                ...rental.toJSON(),
+                insurance: rental.insurance || null, // Include insurance details if available
+            })),
         });
     } catch (error) {
         console.error('Error fetching user rentals:', error);
@@ -345,3 +360,4 @@ exports.getUserRentals = async (req, res) => {
         });
     }
 };
+
