@@ -1,11 +1,11 @@
 const Payment = require('../models/paymentModel'); 
-const  Rental  = require('../models/rentalModel');
+const Rental = require('../models/rentalModel');
 const { User } = require('../models/userModel');
 
 // POST /payments: Process rental payments and deposits
 exports.processPayment = async (req, res, next) => {
     try {
-        const { rentalId, paymentMethod, startDate, endDate } = req.body;
+        const { rentalId, paymentMethod } = req.body;
         const userId = req.user.id;
 
         // Validate user
@@ -18,6 +18,14 @@ exports.processPayment = async (req, res, next) => {
         const rental = await Rental.findByPk(rentalId);
         if (!rental) {
             return res.status(404).json({ success: false, message: 'Rental not found' });
+        }
+
+        // Debug log to check renterId and userId
+        console.log(`Rental RenterId: ${rental.renterId}, Current UserId: ${userId}`);
+
+        // Check if the rental belongs to the user
+        if (rental.renterId !== userId) {
+            return res.status(403).json({ success: false, message: 'Unauthorized: Rental does not belong to the user' });
         }
 
         // Use rental's totalCost for amount
