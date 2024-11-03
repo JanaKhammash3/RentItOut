@@ -117,5 +117,7 @@ router.get('/my-deliveries', authMiddleware(), deliveryController.getUserDeliver
 // Route to delete a delivery
 router.delete('/:id', authMiddleware(), deliveryController.deleteDelivery);
 
+// Update delivery status route
+router.patch('/:id/status', authMiddleware(), deliveryController.updateDeliveryStatus);
 
 module.exports = router;
