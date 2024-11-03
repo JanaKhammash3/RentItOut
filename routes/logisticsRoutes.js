@@ -114,4 +114,8 @@ router.get('/logs', authMiddleware(['admin']), deliveryController.getAllDeliveri
 
 router.get('/my-deliveries', authMiddleware(), deliveryController.getUserDeliveries);
 
+// Route to delete a delivery
+router.delete('/:id', authMiddleware(), deliveryController.deleteDelivery);
+
+
 module.exports = router;

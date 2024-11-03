@@ -97,11 +97,49 @@ exports.getUserDeliveries = async (req, res) => {
         const userId = req.user.id; // Extract user ID from authenticated request
         const userDeliveries = await Delivery.findAll({
             where: { userId },
-           // include: [{ model: Rental }, { model: Item }], // Include associated data if needed
+            //include: [{ model: Rental }, { model: Item }], // Include associated data if needed
         });
         res.status(200).json(userDeliveries);
     } catch (error) {
         console.error('Error retrieving user deliveries:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+
+// Delete a delivery
+exports.deleteDelivery = async (req, res) => {
+    const { id } = req.params; // Get delivery ID from request parameters
+
+    try {
+        // Check if the delivery exists
+        const delivery = await Delivery.findByPk(id);
+        if (!delivery) {
+            return res.status(404).json({ message: 'Delivery not found' });
+        }
+
+        // Check if the delivery status is pending
+        if (delivery.deliveryStatus !== 'Pending') {
+            return res.status(400).json({ message: 'Only pending deliveries can be deleted' });
+        }
+
+        // Check if the delivery belongs to the user
+        if (delivery.userId !== req.user.id) {
+            return res.status(403).json({ message: 'You do not have permission to delete this delivery' });
+        }
+
+        // Delete the delivery
+        await Delivery.destroy({ where: { id } });
+
+        // Update the associated rental status back to active
+        await Rental.update(
+            { status: 'active' },
+            { where: { id: delivery.rentalId } }
+        );
+
+        res.status(200).json({ message: 'Delivery deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting delivery:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
