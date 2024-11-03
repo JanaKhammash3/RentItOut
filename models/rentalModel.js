@@ -28,10 +28,6 @@ const Rental = sequelize.define('rentals', {
         type: DataTypes.ENUM('delivery', 'pickup-point', 'in-person'),
         allowNull: false,
     },
-    // deliveryLocation: {
-    //     type: DataTypes.STRING,
-    //     allowNull: true,
-    // },
     totalCost: {
         type: DataTypes.FLOAT,
         allowNull: false,

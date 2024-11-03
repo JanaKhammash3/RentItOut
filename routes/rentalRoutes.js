@@ -17,4 +17,6 @@ router.delete('/:rentalId', authMiddleware(['admin']), rentalController.cancelRe
 // Route to update rental sstatus
 router.patch('/:id/status', authMiddleware(), rentalController.updateRentalStatus);
 
+// Route to mark rental as received
+router.post('/:id/receive',authMiddleware(), rentalController.markAsReceived);
 module.exports = router;

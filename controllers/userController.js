@@ -120,11 +120,6 @@ exports.submitReview = async (req, res) => {
 };
 
 
-
-
- 
-
-
 // Add this method to userController.js
 const { Op } = require('sequelize'); // Import the Op operator from Sequelize
 
@@ -179,9 +174,6 @@ exports.verifyUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-
-
 
 
 // Middleware to authenticate and check for blacklisted tokens
@@ -268,7 +260,6 @@ exports.updateUserProfile = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 
 // Delete user
