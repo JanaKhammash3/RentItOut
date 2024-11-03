@@ -112,4 +112,6 @@ router.post('/delivery', authMiddleware(), deliveryController.createDelivery); /
 // Example: View delivery logs (only accessible by admin)
 router.get('/logs', authMiddleware(['admin']), deliveryController.getAllDeliveries); // Use the appropriate method from deliveryController
 
+router.get('/my-deliveries', authMiddleware(), deliveryController.getUserDeliveries);
+
 module.exports = router;

@@ -89,3 +89,19 @@ exports.getAllDeliveries = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+
+// Retrieve all deliveries created by the logged-in user
+exports.getUserDeliveries = async (req, res) => {
+    try {
+        const userId = req.user.id; // Extract user ID from authenticated request
+        const userDeliveries = await Delivery.findAll({
+            where: { userId },
+           // include: [{ model: Rental }, { model: Item }], // Include associated data if needed
+        });
+        res.status(200).json(userDeliveries);
+    } catch (error) {
+        console.error('Error retrieving user deliveries:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
