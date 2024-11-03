@@ -432,3 +432,40 @@ exports.updateRentalStatus = async (req, res) => {
     }
 };
 
+
+// Mark a rental as received
+exports.markAsReceived = async (req, res) => {
+    try {
+        const rentalId = req.params.id;
+        const userId = req.user.id; // Get user ID from token middleware
+
+        // Find rental and check current status
+        const rental = await Rental.findByPk(rentalId);
+        
+        if (!rental) {
+            return res.status(404).json({ error: "Rental not found." });
+        }
+        
+        // Check if the rental belongs to the user
+        if (rental.renterId !== userId) {
+            return res.status(403).json({ message: 'You do not have permission to update this rental' });
+        }
+
+        // Check if the rental is active and if the delivery method is either pickup-point or in-person
+        if (rental.status !== 'active') {
+            return res.status(400).json({ error: "Rental is not active and cannot be marked as received." });
+        }
+        
+        if (rental.deliveryMethod !== 'pickup-point' && rental.deliveryMethod !== 'in-person') {
+            return res.status(400).json({ error: "Rental can only be marked as received if the delivery method is 'pickup-point' or 'in-person'." });
+        }
+        
+        // Update rental status to received
+        rental.status = 'received';
+        await rental.save();
+        
+        res.status(200).json({ message: "Rental status updated to received.", rental });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to update rental status." });
+    }
+};
