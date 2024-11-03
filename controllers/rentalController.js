@@ -2,8 +2,10 @@
 // const Item = require('../models/itemModel');  // Sequelize Item model
 // const { User } = require('../models/userModel');  // Sequelize User model
 const axios = require('axios'); // Add this line at the top of your file
+const Delivery = require('../models/deliveryModel');  
 
 const { Rental, Item, User, Insurance } = require('../models/assosiations');
+
 
 
 
@@ -358,6 +360,45 @@ exports.getUserRentals = async (req, res) => {
             message: 'Failed to fetch user rentals',
             error: error.message,
         });
+    }
+};
+
+exports.updateRentalStatus = async (req, res) => {
+    const { id } = req.params; // Get rental ID from request parameters
+    const userId = req.user.id; // Get user ID from token middleware
+
+    try {
+        // Find the rental
+        const rental = await Rental.findByPk(id);
+        if (!rental) {
+            return res.status(404).json({ message: 'Rental not found' });
+        }
+
+        // Check if the rental belongs to the user
+        if (rental.renterId !== userId) {
+            return res.status(403).json({ message: 'You do not have permission to update this rental' });
+        }
+
+        // Check the current status
+        if (rental.status !== 'in-transit') {
+            return res.status(400).json({ message: 'Rental must be in-transit to mark as received' });
+        }
+
+        // Update the rental status to received
+        rental.status = 'received';
+        await rental.save();
+
+        // Update the associated delivery status to 'delivered'
+        const delivery = await Delivery.findOne({ where: { rentalId: id } });
+        if (delivery) {
+            delivery.deliveryStatus = 'Completed'; // Change this if your status naming differs
+            await delivery.save();
+        }
+
+        res.status(200).json({ message: 'Rental status updated to received successfully, and delivery status updated' });
+    } catch (error) {
+        console.error('Error updating rental status:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 

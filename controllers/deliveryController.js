@@ -143,3 +143,43 @@ exports.deleteDelivery = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
+// Update delivery status to 'in-transit'
+exports.updateDeliveryStatus = async (req, res) => {
+    const { id } = req.params; // Get delivery ID from request parameters
+
+    try {
+        // Check if the delivery exists
+        const delivery = await Delivery.findByPk(id);
+        if (!delivery) {
+            return res.status(404).json({ message: 'Delivery not found' });
+        }
+
+        // Check if the delivery belongs to the user
+        if (delivery.userId !== req.user.id) {
+            return res.status(403).json({ message: 'You do not have permission to update this delivery' });
+        }
+
+        // Check if the current status allows for this update
+        if (delivery.deliveryStatus !== 'Pending') {
+            return res.status(400).json({ message: 'Only pending deliveries can be updated to in-transit' });
+        }
+
+        // Update the delivery status to 'in-transit'
+        await Delivery.update(
+            { deliveryStatus: 'In Transit' },
+            { where: { id } }
+        );
+
+        // Update the associated rental status to 'in-transit'
+        await Rental.update(
+            { status: 'in-transit' }, // Change this if your status naming differs
+            { where: { id: delivery.rentalId } } // Ensure rentalId exists in the Delivery model
+        );
+
+        res.status(200).json({ message: 'Delivery status updated to in-transit successfully and rental status updated' });
+    } catch (error) {
+        console.error('Error updating delivery status:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};

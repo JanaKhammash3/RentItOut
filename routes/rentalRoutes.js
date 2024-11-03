@@ -14,4 +14,7 @@ router.get('/myrentals', authMiddleware(), rentalController.getUserRentals);
 
 router.delete('/:rentalId', authMiddleware(['admin']), rentalController.cancelRental);
 
+// Route to update rental sstatus
+router.patch('/:id/status', authMiddleware(), rentalController.updateRentalStatus);
+
 module.exports = router;
