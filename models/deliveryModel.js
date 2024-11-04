@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // Adjust the path if needed
-const User = require('./userModel'); // Adjust if User model is in a different folder
-//const Item = require('./itemModel'); // Adjust if Item model is in a different folder
+const sequelize = require('../config/database'); 
+const User = require('./userModel'); 
 const Rental = require('./rentalModel'); 
 
 
@@ -41,7 +40,7 @@ const Delivery = sequelize.define('deliveries', {
     },
 }, {
     timestamps: true,
-    tableName: 'deliveries', // Optional: Specify table name if needed
+    tableName: 'deliveries',
 });
 
 module.exports = Delivery;

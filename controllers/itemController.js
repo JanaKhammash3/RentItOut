@@ -1,11 +1,9 @@
-
 const { Rental, Item, User } = require('../models/assosiations');
 
 exports.createItem = async (req, res, next) => {
     try {
         const { name, category, description, pricePerDay, isAvailable, latitude, longitude } = req.body;
 
-        // Validate the ownerId (now extracted from the token)
         const owner = await User.findByPk(req.userId);
         if (!owner) {
             return res.status(404).json({ message: 'Owner not found' });
@@ -17,7 +15,7 @@ exports.createItem = async (req, res, next) => {
             description,
             pricePerDay,
             isAvailable,
-            ownerId: req.userId, // Use the ID from the token
+            ownerId: req.userId, 
             latitude,
             longitude,
         });
@@ -40,28 +38,26 @@ exports.createItem = async (req, res, next) => {
             },
         });
     } catch (error) {
-        console.error("Error creating item:", error); // Log error details
+        console.error("Error creating item:", error); 
         res.status(500).json({ error: error.message });
     }
 };
 
-// GET /items/user: Get all items for the authenticated user without pagination
+// GET: Get all items for the user
 exports.getUserItems = async (req, res, next) => {
     try {
-        const userId = req.userId;  // Assumes userId is set by authentication middleware
+        const userId = req.userId;  
 
-        // Fetch all items for the authenticated user
         const items = await Item.findAll({
             where: { ownerId: userId },
             include: {
                 model: Rental,
-                as: 'rentals', // Specify alias as used in the association
+                as: 'rentals', 
                 attributes: ['id', 'startDate', 'endDate', 'totalCost', 'renterId'],
             },
-            order: [['createdAt', 'DESC']], // Optional sorting, adjust as needed
+            order: [['createdAt', 'DESC']], 
         });
 
-        // If no items are found, return a 404 response
         if (items.length === 0) {
             return res.status(404).json({ message: 'No items found for this user.' });
         }
@@ -80,17 +76,13 @@ exports.getUserItems = async (req, res, next) => {
     }
 };
 
-
-
-
-// Get all items for a specific user (GET /items/user/:ownerId)
+// Get all items for a specific user 
 exports.getItemsByUserId = async (req, res, next) => {
     try {
-        const { ownerId } = req.params; // Get ownerId from URL parameters
+        const { ownerId } = req.params; 
 
-        // Fetch items based on ownerId and include their rental status
         const items = await Item.findAll({
-            where: { ownerId: ownerId }, // Filter by ownerId
+            where: { ownerId: ownerId }, 
             include: {
                 model: Rental,
                 attributes: ['id', 'startDate', 'endDate', 'totalCost', 'renterId'],
@@ -103,28 +95,28 @@ exports.getItemsByUserId = async (req, res, next) => {
 
         res.status(200).json(items);
     } catch (error) {
-        console.error("Error retrieving items for user:", error); // Log error details
+        console.error("Error retrieving items for user:", error); 
         next(error);
     }
 };
 
-// Get all items (GET /items)
+// Get all items 
 exports.getAllItems = async (req, res, next) => {
     try {
-        const items = await Item.findAll(); // Use Sequelize's findAll()
+        const items = await Item.findAll(); 
         res.status(200).json(items);
     } catch (error) {
         next(error);
     }
 };
 
-// Get items by category (GET /items/category/:category)
+// Get items by category 
 exports.getItemsByCategory = async (req, res, next) => {
-    const { category } = req.params; // Get category from the URL params
+    const { category } = req.params; 
 
     try {
         const items = await Item.findAll({
-            where: { category } // Filter by category
+            where: { category } 
         });
 
         if (items.length === 0) {
@@ -137,7 +129,7 @@ exports.getItemsByCategory = async (req, res, next) => {
     }
 };
 
-// Get a specific item by ID (GET /items/:itemId)
+// Get a specific item by id
 exports.getItemById = async (req, res, next) => {
     try {
         const item = await Item.findByPk(req.params.itemId, {
@@ -145,7 +137,7 @@ exports.getItemById = async (req, res, next) => {
                 model: Rental,
                 attributes: ['id', 'startDate', 'endDate', 'totalCost', 'renterId'],
             },
-        }); // Use Sequelize's findByPk() and include rental details
+        }); 
         if (!item) {
             return res.status(404).json({ message: 'Item not found' });
         }
@@ -155,26 +147,26 @@ exports.getItemById = async (req, res, next) => {
     }
 };
 
-// Update an item (PUT /items/:itemId)
+// Update an item 
 exports.updateItem = async (req, res, next) => {
     try {
         const [updatedRows, updatedItems] = await Item.update(req.body, {
             where: { id: req.params.itemId },
-            returning: true, // Needed to get the updated item
+            returning: true, 
         });
 
         if (updatedRows === 0) {
             return res.status(404).json({ message: 'Item not found' });
         }
 
-        const updatedItem = updatedItems[0]; // Get the first updated item
+        const updatedItem = updatedItems[0]; 
         res.status(200).json(updatedItem);
     } catch (error) {
         next(error);
     }
 };
 
-// Delete an item (DELETE /items/:itemId)
+// Delete an item 
 exports.deleteItem = async (req, res, next) => {
     try {
         const item = await Item.findByPk(req.params.itemId);
@@ -186,9 +178,8 @@ exports.deleteItem = async (req, res, next) => {
             return res.status(403).json({ message: 'You do not have permission to delete this item' });
         }
 
-        // Optionally delete related deliveries if applicable
         await Delivery.destroy({
-            where: { rentalId: item.rentalId } // Adjust this based on your relationships
+            where: { rentalId: item.rentalId } 
         });
 
         const deletedRows = await Item.destroy({
