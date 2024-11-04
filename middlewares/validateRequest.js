@@ -1,4 +1,3 @@
-// middleware/validateRequest.js
 exports.validateRequest = (req, res, next) => {
     const { userId, rentalId, amount } = req.body;
 
@@ -10,7 +9,6 @@ exports.validateRequest = (req, res, next) => {
         });
     }
 
-    // Validate amount
     if (isNaN(amount) || amount <= 0) {
         return res.status(400).json({
             success: false,
@@ -18,5 +16,5 @@ exports.validateRequest = (req, res, next) => {
         });
     }
 
-    next(); // If validation passes, proceed to the next middleware/controller
+    next(); 
 };
