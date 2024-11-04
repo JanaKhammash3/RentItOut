@@ -1,23 +1,23 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const authMiddleware = require('../middlewares/authMiddleware');
-const { User, Review } = require('../models/userModel'); // Ensure this path is correct
+const { User, Review } = require('../models/userModel'); 
 
 const router = express.Router();
 
-// User registration and login routes (no auth required)
+//registration and login routes
 router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
 router.post('/logout', authMiddleware(), userController.logoutUser);
 
-// User profile routes (auth required)
+//profile routes 
 router.get('/profile', authMiddleware(), userController.getProfile);
 router.put('/profile', authMiddleware(), userController.updateUserProfile);
 
-// Admin-only route: Delete a user
+//Delete a user (for admin)
 router.delete('/:userId', authMiddleware(['admin']), userController.deleteUser);
 
-// Endpoint to submit verification documents (auth required)
+//verify the user
 router.post('/verify', authMiddleware(), async (req, res) => {
     try {
         const { idNumber, phone, address } = req.body;
@@ -33,18 +33,17 @@ router.post('/verify', authMiddleware(), async (req, res) => {
             return res.status(400).json({ error: 'Phone must contain only numeric characters.' });
         }
 
-        // Find the user by ID from the token
         const user = await User.findByPk(req.user.id);
         if (!user) return res.status(404).json({ error: 'User not found' });
 
-        // Check if the provided idNumber and phone match the user's existing info
+        // idNumber&phone?match
         if (user.idNumber !== idNumber || user.phone !== phone) {
             return res.status(400).json({ error: 'ID number or phone does not match with existing account.' });
         }
 
-        // Update the user's address and verification status
-        user.address = address; // Update the address
-        user.isVerified = true; // Mark the user as verified
+        // Update address & verification status
+        user.address = address; 
+        user.isVerified = true; 
         await user.save();
 
         res.status(200).json({
@@ -55,7 +54,7 @@ router.post('/verify', authMiddleware(), async (req, res) => {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
-                address: user.address, // Include address in response
+                address: user.address,
                 isVerified: user.isVerified,
             },
         });
@@ -65,10 +64,7 @@ router.post('/verify', authMiddleware(), async (req, res) => {
     }
 });
 
-// Endpoint to leave a review (auth required)
+//review
 router.post('/:userId/reviews', authMiddleware(), userController.submitReview);
-
-
-
 
 module.exports = router;

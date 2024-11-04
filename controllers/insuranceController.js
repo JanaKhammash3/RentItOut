@@ -3,30 +3,30 @@ const Rental = require('../models/rentalModel');
 const { User } = require('../models/userModel');
 const Item = require('../models/itemModel');
 
-// Admin-only function to add insurance for a rental
+
 exports.addInsurance = async (req, res) => {
     try {
         const { userId, itemId, rentalId, coverageAmount, status } = req.body;
 
-        // Validate user existence
+     
         const user = await User.findByPk(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        // Validate item existence
+       
         const item = await Item.findByPk(itemId);
         if (!item) {
             return res.status(404).json({ success: false, message: 'Item not found' });
         }
 
-        // Validate rental existence
+      
         const rental = await Rental.findByPk(rentalId);
         if (!rental) {
             return res.status(404).json({ success: false, message: 'Rental not found' });
         }
 
-        // Create insurance with the validated user, item, and rental
+        
         const newInsurance = await Insurance.create({
             userId: user.id,
             itemId: item.id,
@@ -50,7 +50,7 @@ exports.addInsurance = async (req, res) => {
     }
 };
 
-// Fetch insurance for a specific rental
+
 exports.getInsurance = async (req, res) => {
     try {
         const { rentalId } = req.params;

@@ -6,8 +6,11 @@ const authMiddleware = require('../middlewares/authMiddleware');
 // POST /items: Add a new item for rent
 router.post('/', authMiddleware(), itemController.createItem);
 
+
 // GET /items: Retrieve a list of items
 router.get('/', authMiddleware(), itemController.getAllItems);
+
+router.get('/myitems', authMiddleware(), itemController.getUserItems);
 
 // GET /items/category/:category: Retrieve items by category
 router.get('/category/:category', authMiddleware(), itemController.getItemsByCategory);
@@ -19,6 +22,7 @@ router.get('/:itemId',authMiddleware(), itemController.getItemById);
 // GET /items/user/:ownerId: Retrieve all items for a specific user 
 //with the rentals
 router.get('/user/:ownerId', authMiddleware(['admin']), itemController.getItemsByUserId);
+
 
 // PUT /items/:itemId: Update an item
 router.put('/:itemId', authMiddleware(), itemController.updateItem);
