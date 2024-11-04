@@ -1,6 +1,5 @@
-
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // Adjust path to your DB config
+const sequelize = require('../config/database'); 
 
 const Item = sequelize.define('items', {
     id: {
@@ -13,13 +12,13 @@ const Item = sequelize.define('items', {
         allowNull: false,
     },
     category: {
-        type: DataTypes.ENUM('tools', 'vehicles', 'electronics', 'furniture', 'others'), // Enum for categories
+        type: DataTypes.ENUM('tools', 'vehicles', 'electronics', 'furniture', 'others'), 
         allowNull: false,
     },
     description: {
         type: DataTypes.TEXT,
     },
-    pricePerDay: { // Renamed from price to pricePerDay to maintain consistency
+    pricePerDay: { 
         type: DataTypes.FLOAT,
         allowNull: false,
     },
@@ -35,16 +34,16 @@ const Item = sequelize.define('items', {
         type: DataTypes.DECIMAL(9, 6),
         allowNull: false,
     },
-    ownerId: { // Assuming ownerId refers to the User who owns the item
-        type: DataTypes.INTEGER, // Adjust based on your User ID type
+    ownerId: { 
+        type: DataTypes.INTEGER, 
         allowNull: false,
         references: {
-            model: 'users', // Adjust this to your actual Users table name
+            model: 'users', 
             key: 'id',
         },
     },
 }, {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true, 
 });
 
 module.exports = Item;
