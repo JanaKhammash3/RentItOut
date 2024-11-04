@@ -1,6 +1,4 @@
-const Payment = require('../models/paymentModel'); 
-const Rental = require('../models/rentalModel');
-const { User } = require('../models/userModel');
+const { Rental, Payment, User } = require('../models/assosiations');
 
 // POST: Process rental payments
 exports.processPayment = async (req, res, next) => {
@@ -149,6 +147,38 @@ exports.getPaymentById = async (req, res, next) => {
     }
 };
 
+// GET: Get all payments for the a user
+exports.getUserPayments = async (req, res, next) => {
+    try {
+        const userId = req.user.id;  
+
+        const payments = await Payment.findAll({
+            where: { userId },
+            include: {
+                model: Rental,
+                as:"rentals",
+                attributes: ['id', 'startDate', 'endDate', 'totalCost'],
+            },
+            order: [['createdAt', 'DESC']], 
+        });
+
+        if (payments.length === 0) {
+            return res.status(404).json({ success: false, message: 'No payments found for this user.' });
+        }
+
+        res.status(200).json({
+            success: true,
+            payments,
+        });
+    } catch (error) {
+        console.error('Error fetching user payments:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch user payments',
+            error: error.message,
+        });
+    }
+};
 
 
 // DELETE: Delete a payment by ID
