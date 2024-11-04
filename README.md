@@ -15,7 +15,7 @@ RentItOut is a backend API for a rental platform where users can list and rent e
 
 - **Backend**: Node.js (Express framework)
 - **Database**: MySQL (Sequelize ORM)
-- **Documentation**: Postman for API docs, GitHub Wiki for project details
+- **Documentation**: Postman for API docs
 - **Version Control**: Git with GitHub (branching and pull requests)
 
 ## Getting Started
