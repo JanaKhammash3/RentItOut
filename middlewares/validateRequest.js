@@ -15,6 +15,5 @@ exports.validateRequest = (req, res, next) => {
             message: 'Invalid amount. It must be a positive number.',
         });
     }
-
     next(); 
 };

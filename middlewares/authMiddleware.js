@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/userModel'); 
 
-
 const authMiddleware = (roles = []) => {
     return async (req, res, next) => {
         try {
