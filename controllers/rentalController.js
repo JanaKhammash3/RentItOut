@@ -89,7 +89,6 @@ exports.startRental = async (req, res, next) => {
             
 
 
-
         const newRental = await Rental.create({
             itemId,
             renterId,  
