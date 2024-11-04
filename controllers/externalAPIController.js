@@ -1,6 +1,6 @@
-//Integrates with external APIs (e.g., Google Maps).
+// integrates with google map external API
 const axios = require('axios');
-const { Insurance } = require('../models/insuranceModel'); // Import the Insurance model
+const { Insurance } = require('../models/insuranceModel'); 
 
 exports.getLocationData = async (req, res, next) => {
     try {
@@ -34,7 +34,6 @@ exports.verifyInsurance = async (req, res, next) => {
     }
 };
 
-///////////
 exports.getMapUrl = async (req, res) => {
     const { latitude, longitude } = req.query;
 
