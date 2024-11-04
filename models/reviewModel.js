@@ -1,7 +1,7 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); 
 
-class Review extends Model {}
+class Review extends Model{}
 
 Review.init({
     rating: {

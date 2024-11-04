@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); 
 
-const Insurance = sequelize.define('insurance', {
+const Insurance = sequelize.define('insurance',{
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -44,3 +44,4 @@ const Insurance = sequelize.define('insurance', {
 });
 
 module.exports = Insurance;
+

@@ -1,8 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); 
 const User = require('./userModel'); 
-const Rental = require('./rentalModel'); 
-
+const Rental = require('./rentalModel');  
 
 const Delivery = sequelize.define('deliveries', {
     id: {

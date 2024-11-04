@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); 
 
 // Define review model 
-const Review = sequelize.define('reviews', {
+const Review = sequelize.define('reviews',{
     rating: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -19,7 +19,7 @@ const Review = sequelize.define('reviews', {
 });
 
 // Define User model
-const User = sequelize.define('users', {
+const User = sequelize.define('users',{
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
