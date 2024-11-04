@@ -1,5 +1,3 @@
-
-
 const Rental = require('./rentalModel');
 const Insurance = require('./insuranceModel');
 const Item = require('./itemModel');
