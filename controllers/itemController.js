@@ -1,6 +1,5 @@
-const Item = require('../models/itemModel'); // Adjust model path as needed
-const { User } = require('../models/userModel'); // Import User model to validate ownerId
-const Rental = require('../models/rentalModel'); // Import Rental model to check rental status
+
+const { Rental, Item, User } = require('../models/assosiations');
 
 exports.createItem = async (req, res, next) => {
     try {
@@ -45,6 +44,44 @@ exports.createItem = async (req, res, next) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+// GET /items/user: Get all items for the authenticated user without pagination
+exports.getUserItems = async (req, res, next) => {
+    try {
+        const userId = req.userId;  // Assumes userId is set by authentication middleware
+
+        // Fetch all items for the authenticated user
+        const items = await Item.findAll({
+            where: { ownerId: userId },
+            include: {
+                model: Rental,
+                as: 'rentals', // Specify alias as used in the association
+                attributes: ['id', 'startDate', 'endDate', 'totalCost', 'renterId'],
+            },
+            order: [['createdAt', 'DESC']], // Optional sorting, adjust as needed
+        });
+
+        // If no items are found, return a 404 response
+        if (items.length === 0) {
+            return res.status(404).json({ message: 'No items found for this user.' });
+        }
+
+        res.status(200).json({
+            success: true,
+            items,
+        });
+    } catch (error) {
+        console.error("Error retrieving items for user:", error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch user items',
+            error: error.message,
+        });
+    }
+};
+
+
+
 
 // Get all items for a specific user (GET /items/user/:ownerId)
 exports.getItemsByUserId = async (req, res, next) => {
