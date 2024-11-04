@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // Adjust path as necessary
+const sequelize = require('../config/database'); 
 
 const Payment = sequelize.define('payments', {
     id: {
@@ -11,7 +11,7 @@ const Payment = sequelize.define('payments', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'users', // Reference to User table
+            model: 'users', 
             key: 'id',
         },
     },
@@ -19,7 +19,7 @@ const Payment = sequelize.define('payments', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'rentals', // Reference to Rental table
+            model: 'rentals', 
             key: 'id',
         },
     },
@@ -32,11 +32,11 @@ const Payment = sequelize.define('payments', {
         allowNull: false,
     },
     status: {
-        type: DataTypes.STRING, // Store payment status (e.g., 'confirmed', 'pending')
+        type: DataTypes.STRING, 
         allowNull: false,
     },
 }, {
-    timestamps: true, // Automatically adds createdAt and updatedAt
+    timestamps: true,
 });
 
 module.exports = Payment;

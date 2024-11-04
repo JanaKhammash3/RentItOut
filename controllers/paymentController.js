@@ -2,46 +2,38 @@ const Payment = require('../models/paymentModel');
 const Rental = require('../models/rentalModel');
 const { User } = require('../models/userModel');
 
-// POST /payments: Process rental payments and deposits
+// POST: Process rental payments
 exports.processPayment = async (req, res, next) => {
     try {
         const { rentalId, paymentMethod } = req.body;
         const userId = req.user.id;
 
-        // Validate user
         const user = await User.findByPk(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        // Validate rental
         const rental = await Rental.findByPk(rentalId);
         if (!rental) {
             return res.status(404).json({ success: false, message: 'Rental not found' });
         }
-
-        // Debug log to check renterId and userId
         console.log(`Rental RenterId: ${rental.renterId}, Current UserId: ${userId}`);
 
-        // Check if the rental belongs to the user
         if (rental.renterId !== userId) {
             return res.status(403).json({ success: false, message: 'Unauthorized: Rental does not belong to the user' });
         }
 
-        // Use rental's totalCost for amount
         const amount = rental.totalCost;
 
-        // Set payment status based on the payment method
         let paymentStatus;
         if (paymentMethod === 'card') {
             paymentStatus = 'confirmed';
         } else if (paymentMethod === 'cash') {
-            paymentStatus = 'pending'; // Pending for cash to be manually confirmed later
+            paymentStatus = 'pending'; 
         } else {
             return res.status(400).json({ success: false, message: 'Invalid payment method' });
         }
 
-        // Save payment details to the database
         const newPayment = await Payment.create({
             userId,
             rentalId,
@@ -65,7 +57,7 @@ exports.processPayment = async (req, res, next) => {
     }
 };
 
-// GET /payments: Get all payments
+// GET: Get all payments
 exports.getAllPayments = async (req, res, next) => {
     try {
         const payments = await Payment.findAll();
@@ -83,37 +75,29 @@ exports.getAllPayments = async (req, res, next) => {
     }
 };
 
-// PUT /payments/:id: Update a payment by ID
+// PUT: Update a payment by ID
 exports.updatePayment = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { paymentMethod, status } = req.body;
-        const userId = req.user.id;  // Ensure this is set correctly from authentication middleware
+        const userId = req.user.id; 
 
-        // Log to debug the userId and the request data
         console.log("Requesting user ID:", userId);
 
-        // Find the payment by ID
         const payment = await Payment.findByPk(id);
 
-        // Check if payment exists
         if (!payment) {
             return res.status(404).json({ success: false, message: 'Payment not found' });
         }
-
-        // Log the payment's userId to compare with the requesting user
         console.log("Payment user ID:", payment.userId);
 
-        // Verify if the payment belongs to the requesting user
         if (payment.userId !== userId) {
             return res.status(403).json({ success: false, message: 'Unauthorized: You can only update your own payments' });
         }
 
-        // Update payment method if provided
         if (paymentMethod) {
             payment.paymentMethod = paymentMethod;
 
-            // Set status based on the payment method
             if (paymentMethod === 'card') {
                 payment.status = 'confirmed';
             } else if (paymentMethod === 'cash') {
@@ -121,12 +105,10 @@ exports.updatePayment = async (req, res, next) => {
             }
         }
 
-        // Update payment status if provided and no payment method change occurred
         if (status && !paymentMethod) {
             payment.status = status;
         }
 
-        // Save the updated payment
         await payment.save();
 
         res.status(200).json({
@@ -145,8 +127,7 @@ exports.updatePayment = async (req, res, next) => {
 };
 
 
-
-// GET /payments/:id: Get a specific payment by ID
+// GET: Get a specific payment by ID
 exports.getPaymentById = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -168,7 +149,9 @@ exports.getPaymentById = async (req, res, next) => {
     }
 };
 
-// DELETE /payments/:id: Delete a payment by ID
+
+
+// DELETE: Delete a payment by ID
 exports.deletePayment = async (req, res, next) => {
     try {
         const { id } = req.params;
