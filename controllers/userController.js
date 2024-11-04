@@ -1,18 +1,17 @@
 const { User } = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const  Review  = require('../models/reviewModel'); // Adjust the path if necessary
-
-// In-memory token blacklist
+const  Review  = require('../models/reviewModel'); 
 const tokenBlacklist = [];
 
-// Helper function to check if a token is blacklisted
+//check if a token is blacklisted
 const isTokenBlacklisted = (token) => tokenBlacklist.includes(token);
 
 // Register a new user
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, phone, idNumber, role } = req.body; // Default role to 'user'
+    // Default role to 'user'
+    const { name, email, password, phone, idNumber, role } = req.body; 
 
     // Validations
     if (!name || !email || !password || !phone || !idNumber) {
@@ -28,18 +27,18 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ error: 'Invalid email format.' });
     }
 
-    // Ensure role is either 'user' or 'admin'
+    //the role is 'user' or 'admin'
     if (role !== 'user' && role !== 'admin') {
       return res.status(400).json({ error: 'Role must be either "user" or "admin".' });
   }
 
-    // Check for existing user by email or ID number
+    //see if the user already exists
     const existingUser = await User.findOne({ where: { email } });
     const existingID = await User.findOne({ where: { idNumber } });
     if (existingUser) return res.status(400).json({ error: 'Email is already in use.' });
     if (existingID) return res.status(400).json({ error: 'ID number is already in use.' });
 
-    // Hash the password and create the user
+    //Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hashedPassword, phone, idNumber, role });
 
@@ -80,7 +79,7 @@ exports.logoutUser = (req, res) => {
   res.status(200).json({ success: true, message: 'User logged out successfully' });
 };
 
-// Ensure the review function has the right checks in place
+//for reviewing
 exports.submitReview = async (req, res) => {
   try {
       const user = await User.findByPk(req.params.userId);
@@ -88,26 +87,22 @@ exports.submitReview = async (req, res) => {
           return res.status(404).json({ message: 'User not found' });
       }
 
-      // Check if the reviewer is verified
+      // if the reviewer verified
       if (!req.user.isVerified) {
           return res.status(403).json({ message: 'Your account is not verified. You cannot leave a review.' });
       }
 
-       // Check if the reviewer is verified
-       if (!req.user.isVerified) {  // Add the verification check here
-        return res.status(403).json({ message: 'Your account is not verified. You cannot leave a review.' });
-    }
       const { rating, comment } = req.body;
 
-      // Validate rating
+      //rating instructions
       if (rating === undefined || typeof rating !== 'number' || rating < 1 || rating > 5) {
           return res.status(400).json({ message: 'Rating must be a number between 1 and 5.' });
       }
 
       // Create the review
       const review = await Review.create({
-          userId: user.id,        // User being reviewed
-          reviewerId: req.user.id, // Current user submitting the review
+          userId: user.id,        
+          reviewerId: req.user.id, 
           rating,
           comment
       });
@@ -119,9 +114,7 @@ exports.submitReview = async (req, res) => {
   }
 };
 
-
-// Add this method to userController.js
-const { Op } = require('sequelize'); // Import the Op operator from Sequelize
+const { Op } = require('sequelize'); 
 
 exports.verifyUser = async (req, res) => {
   try {
@@ -142,21 +135,20 @@ exports.verifyUser = async (req, res) => {
     const user = await User.findByPk(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    // Check if idNumber or phone are already in use by other users
+    // Check if idNumber or phone are used by other users
     const conflictingID = await User.findOne({ where: { idNumber, id: { [Op.ne]: user.id } } });
     const conflictingPhone = await User.findOne({ where: { phone, id: { [Op.ne]: user.id } } });
 
     if (conflictingID) return res.status(400).json({ error: 'ID number is already in use by another account.' });
     if (conflictingPhone) return res.status(400).json({ error: 'Phone number is already linked to another account.' });
 
-    // Confirm the provided idNumber and phone match the existing user's data
+    // idNumber&phone match
     if (user.idNumber !== idNumber || user.phone !== phone) {
       return res.status(400).json({ error: 'Provided ID number or phone number does not match our records.' });
     }
 
-    // Store the address and update the user's verification status
     user.address = address;
-    user.isVerified = true; // Update verification status
+    user.isVerified = true;
     await user.save();
 
     res.status(200).json({
@@ -175,8 +167,6 @@ exports.verifyUser = async (req, res) => {
   }
 };
 
-
-// Middleware to authenticate and check for blacklisted tokens
 exports.authenticate = (req, res, next) => {
   const token = req.header('Authorization').replace('Bearer ', '');
   if (isTokenBlacklisted(token)) {
@@ -233,7 +223,6 @@ exports.updateUserProfile = async (req, res) => {
       return res.status(400).json({ error: 'Phone must contain only numeric characters.' });
     }
 
-    // Find the user by ID extracted from JWT
     const user = await User.findByPk(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -242,7 +231,7 @@ exports.updateUserProfile = async (req, res) => {
     user.email = email;
     user.phone = phone;
 
-    // Save updated user profile
+    // Save profile
     await user.save();
 
     res.status(200).json({
@@ -269,7 +258,7 @@ exports.deleteUser = async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     await user.destroy();
-    res.status(204).json(); // No content
+    res.status(204).json(); 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
