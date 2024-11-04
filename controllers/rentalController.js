@@ -244,31 +244,61 @@ exports.getRentals = async (req, res, next) => {
 };
 
 exports.updateRental = async (req, res, next) => {
-    console.log('updateRental function reached'); 
+    console.log('updateUserRental function reached');
     try {
-        const { startDate, endDate } = req.body;
-        const rental = await Rental.findByPk(req.params.rentalId);
+        const userId = req.user.id; // Get user ID from token middleware
+        const rentalId = req.params.rentalId; // Rental ID from route parameter
+        const { startDate, endDate, deliveryMethod } = req.body;
+
+        // Find the rental by its ID and ensure it belongs to the user
+        const rental = await Rental.findOne({
+            where: {
+                id: rentalId,
+                renterId: userId
+            }
+        });
 
         if (!rental) {
-            return res.status(404).json({ message: 'Rental not found' });
+            return res.status(404).json({ message: 'Rental not found or does not belong to the user' });
         }
 
-        
-        const rentalDays = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
-        const item = await Item.findByPk(rental.itemId);
-        const totalCost = rentalDays * item.pricePerDay;
+        // If dates are provided, validate and recalculate the total cost
+        if (startDate && endDate) {
+            const rentalDays = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
+            if (rentalDays <= 0) {
+                return res.status(400).json({ message: 'End date must be after start date' });
+            }
 
-       
-        rental.startDate = startDate;
-        rental.endDate = endDate;
-        rental.totalCost = totalCost;
+            const item = await Item.findByPk(rental.itemId);
+            const totalCost = rentalDays * item.pricePerDay;
+
+            rental.startDate = startDate;
+            rental.endDate = endDate;
+            rental.totalCost = totalCost;
+        }
+
+        // Update delivery method if provided
+        if (deliveryMethod) {
+            if (!['delivery', 'pickup-point', 'in-person'].includes(deliveryMethod)) {
+                return res.status(400).json({ message: 'Invalid delivery method' });
+            }
+            rental.deliveryMethod = deliveryMethod;
+        }
+
+        // Save the updated rental
         await rental.save();
 
-        res.status(200).json(rental);
+        res.status(200).json({
+            success: true,
+            message: 'Rental updated successfully',
+            rental
+        });
     } catch (error) {
-        next(error);
+        console.error('Error updating user rental:', error);
+        res.status(500).json({ success: false, message: 'Failed to update rental', error: error.message });
     }
 };
+
 
 exports.cancelRental = async (req, res, next) => {
     console.log('cancelRental function reached');
