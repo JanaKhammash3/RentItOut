@@ -24,7 +24,6 @@ router.get('/:itemId',authMiddleware(), itemController.getItemById);
 //with the rentals
 router.get('/user/:ownerId', authMiddleware(['admin']), itemController.getItemsByUserId);
 
-
 // PUT: Update an item
 router.put('/:itemId', authMiddleware(), itemController.updateItem);
 

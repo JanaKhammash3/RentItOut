@@ -4,8 +4,6 @@ const rentalController = require('../controllers/rentalController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 
-
-
 router.post('/',authMiddleware(),rentalController.startRental);
 router.get('/',  authMiddleware(), rentalController.getRentals); 
 

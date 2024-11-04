@@ -8,3 +8,4 @@ router.get('/location', getMapUrl);
 router.get('/location/:address', getLocationData);
 
 module.exports = router;
+

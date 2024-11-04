@@ -10,7 +10,6 @@ router.post('/', authMiddleware(), paymentController.processPayment);
 
 router.get('/mypayments', authMiddleware(), paymentController.getUserPayments);
 
-
 // GET: Get all payments
 router.get('/', authMiddleware(['admin']), paymentController.getAllPayments); // Auth required for admin
 

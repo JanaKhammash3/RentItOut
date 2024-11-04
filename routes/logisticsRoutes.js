@@ -33,7 +33,6 @@ router.get('/:rentalId/delivery-options', authMiddleware(), async (req, res) => 
     }
 });
 
-
 // get nearby locations (google map)
 router.get('/locations', async (req, res) => {
     const { latitude, longitude, radius = 5000 } = req.query;
