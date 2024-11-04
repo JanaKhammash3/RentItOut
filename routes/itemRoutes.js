@@ -18,7 +18,7 @@ router.get('/:itemId',authMiddleware(), itemController.getItemById);
 
 // GET /items/user/:ownerId: Retrieve all items for a specific user 
 //with the rentals
-router.get('/user/:ownerId', authMiddleware(), itemController.getItemsByUserId);
+router.get('/user/:ownerId', authMiddleware(['admin']), itemController.getItemsByUserId);
 
 // PUT /items/:itemId: Update an item
 router.put('/:itemId', authMiddleware(), itemController.updateItem);
