@@ -1,5 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // adjust as needed
+const sequelize = require('../config/database'); 
 
 class Review extends Model {}
 
@@ -15,7 +15,7 @@ Review.init({
     userId: {
         type: DataTypes.INTEGER,
         references: {
-            model: 'Users', // Adjust if your Users table is named differently
+            model: 'Users', 
             key: 'id'
         }
     },
@@ -29,7 +29,7 @@ Review.init({
 }, {
     sequelize,
     modelName: 'Review',
-    tableName: 'reviews', // Make sure this matches your database table name
+    tableName: 'reviews', 
 });
 
 module.exports = Review;
