@@ -1,16 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const axios = require('axios'); // Use axios for external API calls
+const axios = require('axios');
 const Delivery = require('../models/deliveryModel'); //
 const authMiddleware = require('../middlewares/authMiddleware');//
 const deliveryController = require('../controllers/deliveryController');
 
-// router.use('/deliveries', logisticsRoutes);
-
 const MAP_API_URL = process.env.MAP_API_URL;
 const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
-//  relevant place types or keywords
+// place types or keywords
 const PLACE_TYPES = [
     'hardware_store',
     'electronics_store',
@@ -36,7 +34,7 @@ router.get('/:rentalId/delivery-options', authMiddleware(), async (req, res) => 
 });
 
 
-// Endpoint to retrieve nearby locations for pickup/delivery
+// get nearby locations (google map)
 router.get('/locations', async (req, res) => {
     const { latitude, longitude, radius = 5000 } = req.query;
 
@@ -63,10 +61,9 @@ router.get('/locations', async (req, res) => {
             })
         );
 
-        // Execute all requests concurrently
         const responses = await Promise.all([...placeRequests, ...keywordRequests]);
 
-        // Combine, filter, and remove duplicate locations
+        // filter locations
         const locations = responses
             .flatMap(response => response.data.results)
             .filter(location =>
@@ -76,7 +73,6 @@ router.get('/locations', async (req, res) => {
                 )
             );
 
-        // Remove duplicates based on place_id
         const uniqueLocations = Array.from(
             new Map(locations.map(loc => [loc.place_id, loc])).values()
         );
@@ -90,16 +86,12 @@ router.get('/locations', async (req, res) => {
 
 router.post('/delivery', authMiddleware(), deliveryController.createDelivery); // Use the controller method for delivery creation
 
-
-// Example: View delivery logs (only accessible by admin)
 router.get('/logs', authMiddleware(['admin']), deliveryController.getAllDeliveries); // Use the appropriate method from deliveryController
 
 router.get('/my-deliveries', authMiddleware(), deliveryController.getUserDeliveries);
 
-// Route to delete a delivery
 router.delete('/:id', authMiddleware(), deliveryController.deleteDelivery);
 
-// Update delivery status route
 router.patch('/:id/status', authMiddleware(), deliveryController.updateDeliveryStatus);
 
 module.exports = router;
