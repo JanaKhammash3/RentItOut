@@ -1,64 +1,27 @@
 {
-    
     "name": "advanced",
-    
     "version": "1.0.0",
-    
     "description": "A platform for renting out infrequently used items with a loyalty point system.",
-    
     "main": "app.js",
-    
     "scripts": {
-    
-        
-    "start": "node app.js",
-    
-        
-    "test": "echo \"Error: no test specified\" && exit 1"
-    
+        "start": "node app.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
-    
     "dependencies": {
-    
-        
-    "advanced": "file:",
-    
-        
-    "axios": "^1.7.7",
-    
-        
-    "cors": "^2.8.5",
-    
-        
-    "dotenv": "^10.0.0",
-    
-        
-    "express": "^4.17.1",
-    
-        
-    "jsonwebtoken": "^9.0.2",
-    
-        
-    "mysql2": "^3.11.3",
-    
-        
-    "sequelize": "^6.6.2",
-    
-        
-    "stripe": "^17.2.1"
-    
+        "advanced": "file:",
+        "axios": "^1.7.7",
+        "cors": "^2.8.5",
+        "dotenv": "^10.0.0",
+        "express": "^4.17.1",
+        "jsonwebtoken": "^9.0.2",
+        "mysql2": "^3.11.3",
+        "sequelize": "^6.6.2",
+        "stripe": "^17.2.1"
     },
-    
     "keywords": [],
-    
     "author": "Tala Abu Soud",
-    
     "license": "ISC",
-    
     "devDependencies": {
-    
-        
-    "@types/dotenv": "^6.1.1"
-    
+        "@types/dotenv": "^6.1.1"
     }
 }
