@@ -19,4 +19,5 @@ router.patch('/:id/status', authMiddleware(), rentalController.updateRentalStatu
 
 // Route to mark rental as received
 router.post('/:id/receive',authMiddleware(), rentalController.markAsReceived);
+router.delete('/myrental/:rentalId', authMiddleware(), rentalController.deleteUserRental);
 module.exports = router;

@@ -445,3 +445,49 @@ exports.markAsReceived = async (req, res) => {
         res.status(500).json({ error: "Failed to update rental status." });
     }
 };
+exports.deleteUserRental = async (req, res) => {
+    try {
+        const userId = req.user.id;  // Get user ID from token middleware
+        const rentalId = req.params.rentalId;  // Get rental ID from route params
+
+        // Find the rental by its ID and ensure it belongs to the user
+        const rental = await Rental.findOne({
+            where: {
+                id: rentalId,
+                renterId: userId
+            }
+        });
+
+        if (!rental) {
+            return res.status(404).json({
+                success: false,
+                message: 'Rental not found or does not belong to the user'
+            });
+        }
+
+        // Delete any associated deliveries first
+        await Delivery.destroy({ where: { rentalId } });
+
+        // Set the associated item back to available
+        const item = await Item.findByPk(rental.itemId);
+        if (item) {
+            item.isAvailable = true;
+            await item.save();
+        }
+
+        // Delete the rental itself
+        await rental.destroy();
+
+        res.status(200).json({
+            success: true,
+            message: 'Rental deleted successfully and item is now available',
+        });
+    } catch (error) {
+        console.error('Error deleting user rental:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete rental',
+            error: error.message
+        });
+    }
+};
