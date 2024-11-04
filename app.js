@@ -32,11 +32,8 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/deliveries', deliveriesRouter);
 app.use('/api/insurance', insuranceRoute);
 
-
 app.use(errorHandler);
-
 const PORT = process.env.PORT || 5000;
-
 
 const startServer = async () => {
   try {
