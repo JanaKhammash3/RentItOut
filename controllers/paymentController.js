@@ -180,7 +180,6 @@ exports.getUserPayments = async (req, res, next) => {
     }
 };
 
-
 // DELETE: Delete a payment by ID
 exports.deletePayment = async (req, res, next) => {
     try {

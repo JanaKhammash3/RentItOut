@@ -193,7 +193,6 @@ exports.updateItem = async (req, res, next) => {
     }
 };
 
-
 // Delete an item 
 exports.deleteItem = async (req, res, next) => {
     try {

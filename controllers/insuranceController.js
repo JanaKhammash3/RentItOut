@@ -19,7 +19,6 @@ exports.addInsurance = async (req, res) => {
         if (!item) {
             return res.status(404).json({ success: false, message: 'Item not found' });
         }
-
       
         const rental = await Rental.findByPk(rentalId);
         if (!rental) {

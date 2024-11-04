@@ -26,3 +26,4 @@ exports.getMapUrl = async (req, res) => {
 
     return res.status(200).json({ mapUrl });
 };
+
