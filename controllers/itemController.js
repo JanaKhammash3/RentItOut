@@ -147,24 +147,52 @@ exports.getItemById = async (req, res, next) => {
     }
 };
 
-// Update an item 
+// PUT: Update an item (authenticated user's item only)
 exports.updateItem = async (req, res, next) => {
     try {
+        const itemId = req.params.itemId;
+        const userId = req.userId;  // Assumes userId is set by authentication middleware
+
+        // Find the item by ID to check ownership
+        const item = await Item.findByPk(itemId);
+
+        // Check if the item exists
+        if (!item) {
+            return res.status(404).json({ message: 'Item not found' });
+        }
+
+        // Check if the authenticated user is the owner of the item
+        if (item.ownerId !== userId) {
+            return res.status(403).json({ message: 'You do not have permission to update this item' });
+        }
+
+        // Update the item fields with the provided data
         const [updatedRows, updatedItems] = await Item.update(req.body, {
-            where: { id: req.params.itemId },
-            returning: true, 
+            where: { id: itemId },
+            returning: true,  // Needed to get the updated item in response
         });
 
+        // Verify if the update was successful
         if (updatedRows === 0) {
             return res.status(404).json({ message: 'Item not found' });
         }
 
-        const updatedItem = updatedItems[0]; 
-        res.status(200).json(updatedItem);
+        const updatedItem = updatedItems[0];  // Get the first updated item
+        res.status(200).json({
+            success: true,
+            message: 'Item updated successfully',
+            item: updatedItem,
+        });
     } catch (error) {
-        next(error);
+        console.error("Error updating item:", error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to update item',
+            error: error.message,
+        });
     }
 };
+
 
 // Delete an item 
 exports.deleteItem = async (req, res, next) => {
