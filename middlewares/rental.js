@@ -1,20 +1,20 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // Ensure you have the correct path
+const sequelize = require('../config/database'); 
 
 const Rental = sequelize.define('rental', {
-    itemId: { // Using itemId instead of item for clarity in MySQL
+    itemId: { 
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'items', // This should match the actual table name in MySQL
+            model: 'items', 
             key: 'id',
         },
     },
-    renterId: { // Using renterId instead of renter for clarity in MySQL
+    renterId: { 
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'users', // This should match the actual table name in MySQL
+            model: 'users', 
             key: 'id',
         },
     },
@@ -27,7 +27,7 @@ const Rental = sequelize.define('rental', {
         allowNull: false,
     },
     totalCost: {
-        type: DataTypes.FLOAT, // Use FLOAT or DECIMAL based on your precision needs
+        type: DataTypes.FLOAT, 
         allowNull: false,
     },
     status: {
@@ -36,11 +36,11 @@ const Rental = sequelize.define('rental', {
     },
     createdAt: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW, // Automatically sets the current date
+        defaultValue: DataTypes.NOW, 
     },
 }, {
-    timestamps: true, // Automatically adds updatedAt field
+    timestamps: true, 
 });
 
-// Export the Rental model
+
 module.exports = Rental;
