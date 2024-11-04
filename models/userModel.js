@@ -1,23 +1,24 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // Adjust path as needed
+const sequelize = require('../config/database'); 
 
-// Define the Review model first
+// Define review model 
 const Review = sequelize.define('reviews', {
     rating: {
         type: DataTypes.INTEGER,
         allowNull: false,
         validate: {
             min: 1,
-            max: 5, // Assuming a rating scale of 1 to 5
+            max: 5, 
         },
     },
+    //the comment is optional(not needed)
     comment: {
         type: DataTypes.TEXT,
-        allowNull: true, // Make comment optional
+        allowNull: true, 
     },
 });
 
-// Define the User model
+// Define User model
 const User = sequelize.define('users', {
     id: {
         type: DataTypes.INTEGER,
@@ -33,12 +34,12 @@ const User = sequelize.define('users', {
         allowNull: false,
         unique: true,
         validate: {
-            isEmail: true, // Validates email format
+            isEmail: true, 
         },
     },
     password: {
         type: DataTypes.STRING,
-        allowNull: false, // Make sure this field is required
+        allowNull: false, 
         validate: {
             len: {
                 args: [5, Infinity],
@@ -50,7 +51,8 @@ const User = sequelize.define('users', {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-            isNumeric: true, // Phone must be numeric
+            //phone should be only numbers
+            isNumeric: true, 
         },
     },
     idNumber: {
@@ -58,12 +60,14 @@ const User = sequelize.define('users', {
         allowNull: false,
         unique: true,
         validate: {
-            isNumeric: true, // ID must be numeric
+            //id should be only numbers
+            isNumeric: true, 
         },
     },
     address: {
-        type: DataTypes.STRING, // Changed from Sequelize.STRING to DataTypes.STRING
-        allowNull: true, // Makes the address field optional
+        type: DataTypes.STRING, 
+        //optional
+        allowNull: true, 
     },
     isVerified: {
         type: DataTypes.BOOLEAN,
@@ -72,21 +76,20 @@ const User = sequelize.define('users', {
     role: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 'user', // Default to 'user' if not specified
+        defaultValue: 'user', 
         validate: {
-            isIn: [['user', 'admin']], // Optional: validate that it's either 'user' or 'admin'
+            isIn: [['user', 'admin']], 
         },
     },
 }, { 
     timestamps: true 
 });
 
-// Relationships: A user can receive many reviews, and reviews are given by other users
-User.hasMany(Review, { foreignKey: 'userId', as: 'reviewsReceived' }); // Reviews received by this user
-Review.belongsTo(User, { foreignKey: 'userId', as: 'user' }); // Each review is associated with the user being reviewed
+//the user can recieve reviews 
+User.hasMany(Review, { foreignKey: 'userId', as: 'reviewsReceived' }); 
+Review.belongsTo(User, { foreignKey: 'userId', as: 'user' }); 
 
-User.hasMany(Review, { foreignKey: 'reviewerId', as: 'reviewsGiven' }); // Reviews written by this user
-Review.belongsTo(User, { foreignKey: 'reviewerId', as: 'reviewer' }); // Each review is associated with the user who wrote it
+User.hasMany(Review, { foreignKey: 'reviewerId', as: 'reviewsGiven' }); 
+Review.belongsTo(User, { foreignKey: 'reviewerId', as: 'reviewer' }); 
 
-// Export the models
 module.exports = { User, Review };
