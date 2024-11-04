@@ -1,5 +1,5 @@
 
-// models/associations.js or similar file
+
 const Rental = require('./rentalModel');
 const Insurance = require('./insuranceModel');
 const Item = require('./itemModel');
@@ -16,7 +16,7 @@ Insurance.belongsTo(Item, { foreignKey: 'itemId' });
 Rental.belongsTo(User, { foreignKey: 'renterId', as: 'renter' });
 Rental.belongsTo(Item, { foreignKey: 'itemId' });
 
-// Define the reverse association from Item to Rental
+
 Item.hasMany(Rental, { foreignKey: 'itemId', as: 'rentals' }); // Add this line
 
 // New association between Rental and Payment
