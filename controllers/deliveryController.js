@@ -1,5 +1,5 @@
 const Delivery = require('../models/deliveryModel');
-const Item = require('../models/itemModel'); // Check item availability
+const Item = require('../models/itemModel'); 
 const Rental = require('../models/rentalModel');
 // const sequelize = require('../config/database');
 

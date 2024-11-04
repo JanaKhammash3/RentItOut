@@ -1,4 +1,4 @@
-const { Review, User } = require('../models/userModel'); // Ensure this path is correct
+const { Review, User } = require('../models/userModel'); 
 exports.submitReview = async (req, res) => {
     try {
         const user = await User.findByPk(req.params.userId);
@@ -18,8 +18,8 @@ exports.submitReview = async (req, res) => {
 
         // Create the review
         const review = await Review.create({
-            userId: user.id, // User being reviewed
-            reviewerId: req.user.id, // The user leaving the review
+            userId: user.id, 
+            reviewerId: req.user.id, 
             rating,
             comment
         });

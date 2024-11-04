@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // Adjust path as necessary
+const sequelize = require('../config/database'); 
 
-// const { Rental, Item, User } = require('../models/associations');
+
 const Rental = sequelize.define('rentals', {
     id: {
         type: DataTypes.INTEGER,
@@ -32,11 +32,11 @@ const Rental = sequelize.define('rentals', {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
-    latitude: {  // Add latitude field
+    latitude: {  
         type: DataTypes.FLOAT,
         allowNull: true
     },
-    longitude: { // Add longitude field
+    longitude: {
         type: DataTypes.FLOAT,
         allowNull: true
     },

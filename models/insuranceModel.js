@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // Adjust the path to your DB config
+const sequelize = require('../config/database'); 
 
 const Insurance = sequelize.define('insurance', {
     id: {
@@ -25,7 +25,7 @@ const Insurance = sequelize.define('insurance', {
     },
     rentalId: {
         type: DataTypes.INTEGER,
-        allowNull: true, // Allow null if insurance is not linked to a rental
+        allowNull: true, 
         references: {
             model: 'rentals',
             key: 'id',
