@@ -76,30 +76,6 @@ exports.getUserItems = async (req, res, next) => {
     }
 };
 
-// Get all items for a specific user 
-exports.getItemsByUserId = async (req, res, next) => {
-    try {
-        const { ownerId } = req.params; 
-
-        const items = await Item.findAll({
-            where: { ownerId: ownerId }, 
-            include: {
-                model: Rental,
-                attributes: ['id', 'startDate', 'endDate', 'totalCost', 'renterId'],
-            },
-        });
-
-        if (items.length === 0) {
-            return res.status(404).json({ message: 'No items found for this user.' });
-        }
-
-        res.status(200).json(items);
-    } catch (error) {
-        console.error("Error retrieving items for user:", error); 
-        next(error);
-    }
-};
-
 // Get all items 
 exports.getAllItems = async (req, res, next) => {
     try {
@@ -124,24 +100,6 @@ exports.getItemsByCategory = async (req, res, next) => {
         }
 
         res.status(200).json(items);
-    } catch (error) {
-        next(error);
-    }
-};
-
-// Get a specific item by id
-exports.getItemById = async (req, res, next) => {
-    try {
-        const item = await Item.findByPk(req.params.itemId, {
-            include: {
-                model: Rental,
-                attributes: ['id', 'startDate', 'endDate', 'totalCost', 'renterId'],
-            },
-        }); 
-        if (!item) {
-            return res.status(404).json({ message: 'Item not found' });
-        }
-        res.status(200).json(item);
     } catch (error) {
         next(error);
     }
