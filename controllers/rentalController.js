@@ -7,7 +7,7 @@ const { Rental, Item, User, Insurance } = require('../models/assosiations');
 exports.startRental = async (req, res, next) => {
     console.log('startRental function reached');
     try {
-        let { itemId, startDate, endDate, deliveryMethod, deliveryLocation } = req.body;  
+        let { itemId, startDate, endDate, deliveryMethod } = req.body;  
         const renterId = req.user?.id || 1; 
 
         
@@ -46,7 +46,6 @@ exports.startRental = async (req, res, next) => {
                 startDate,
                 endDate,
                 deliveryMethod,
-                
                 totalCost,
                  latitude,  
                  longitude ,
@@ -82,11 +81,6 @@ exports.startRental = async (req, res, next) => {
                 return res.status(404).json({ message: 'No nearby pickup locations found.' });
             }
             
-            deliveryLocation = locationResponse.data.locations[0].address || locationResponse.data.locations[0].name;
-            if (typeof deliveryLocation !== 'string') {
-                return res.status(500).json({ message: 'Invalid format for delivery location.' });
-            }
-            
 
 
         const newRental = await Rental.create({
@@ -95,7 +89,6 @@ exports.startRental = async (req, res, next) => {
             startDate,
             endDate,
             deliveryMethod,
-            deliveryLocation,
             totalCost,
             latitude,   
             longitude ,
@@ -123,7 +116,6 @@ exports.startRental = async (req, res, next) => {
                 startDate,
                 endDate,
                 deliveryMethod,
-             
                 totalCost,
             });
         
@@ -412,8 +404,6 @@ exports.updateRentalStatus = async (req, res) => {
     }
 };
 
-
-
 exports.markAsReceived = async (req, res) => {
     try {
         const rentalId = req.params.id;
@@ -449,6 +439,7 @@ exports.markAsReceived = async (req, res) => {
         res.status(500).json({ error: "Failed to update rental status." });
     }
 };
+
 exports.deleteUserRental = async (req, res) => {
     try {
         const userId = req.user.id;  
