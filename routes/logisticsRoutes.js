@@ -83,9 +83,9 @@ router.get('/locations', async (req, res) => {
     }
 });
 
-router.post('/delivery', authMiddleware(), deliveryController.createDelivery); // Use the controller method for delivery creation
+router.post('/delivery', authMiddleware(), deliveryController.createDelivery); 
 
-router.get('/logs', authMiddleware(['admin']), deliveryController.getAllDeliveries); // Use the appropriate method from deliveryController
+router.get('/logs', authMiddleware(['admin']), deliveryController.getAllDeliveries);
 
 router.get('/my-deliveries', authMiddleware(), deliveryController.getUserDeliveries);
 

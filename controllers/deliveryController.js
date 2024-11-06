@@ -8,18 +8,15 @@ exports.createDelivery = async (req, res) => {
     const { rentalId } = req.body;
 
     try {
-        // item availability
         const rental = await Rental.findByPk(rentalId);
         if (!rental) {
             return res.status(404).json({ message: 'Rental not found' });
         }
 
-        // checking if renter id same as user id
         if (rental.renterId === req.user.id) {
             return res.status(400).json({ message: 'Invalid: Renter cannot create delivery for their own rental' });
         }
 
-        // check if the method of delivery is delivery and rental is active 
         if (rental.deliveryMethod !== 'delivery' || rental.status !== 'active') {
             return res.status(400).json({ message: 'Rental is not eligible for delivery' });
         }
@@ -30,10 +27,8 @@ exports.createDelivery = async (req, res) => {
             return res.status(404).json({ message: 'Item not found' });
         }
 
-        // latitude and longitude for delivery pickup location from items table
         const { latitude: itemLatitude, longitude: itemLongitude } = item; 
 
-        // latitude and longitude for deliveryLocation from rentals table
         const { latitude: rentalLatitude, longitude: rentalLongitude } = rental;
 
         // external API 
