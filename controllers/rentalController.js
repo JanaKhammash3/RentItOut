@@ -82,10 +82,10 @@ exports.startRental = async (req, res, next) => {
                 return res.status(404).json({ message: 'No nearby pickup locations found.' });
             }
             
-            deliveryLocation = locationResponse.data.locations[0].address || locationResponse.data.locations[0].name;
-            if (typeof deliveryLocation !== 'string') {
-                return res.status(500).json({ message: 'Invalid format for delivery location.' });
-            }
+            // deliveryLocation = locationResponse.data.locations[0].address || locationResponse.data.locations[0].name;
+            // if (typeof deliveryLocation !== 'string') {
+            //     return res.status(500).json({ message: 'Invalid format for delivery location.' });
+            // }
             
 
 
@@ -95,7 +95,7 @@ exports.startRental = async (req, res, next) => {
             startDate,
             endDate,
             deliveryMethod,
-            deliveryLocation,
+            // deliveryLocation,
             totalCost,
             latitude,   
             longitude ,
