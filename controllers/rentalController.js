@@ -7,7 +7,7 @@ const { Rental, Item, User, Insurance } = require('../models/assosiations');
 exports.startRental = async (req, res, next) => {
     console.log('startRental function reached');
     try {
-        let { itemId, startDate, endDate, deliveryMethod, deliveryLocation } = req.body;  
+        let { itemId, startDate, endDate, deliveryMethod } = req.body;  
         const renterId = req.user?.id || 1; 
 
         
