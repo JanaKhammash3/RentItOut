@@ -4,6 +4,7 @@ const itemController = require('../controllers/itemController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 
+
 // POST: Add new item for rent
 router.post('/', authMiddleware(), itemController.createItem);
 
@@ -22,5 +23,7 @@ router.put('/:itemId', authMiddleware(), itemController.updateItem);
 
 // DELETE: Delete an item
 router.delete('/:itemId', authMiddleware(), itemController.deleteItem);
+
+
 
 module.exports = router;

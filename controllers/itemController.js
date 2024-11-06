@@ -147,7 +147,7 @@ exports.updateItem = async (req, res, next) => {
     }
 };
 
-// Delete an item 
+// Delete an item
 exports.deleteItem = async (req, res, next) => {
     try {
         const item = await Item.findByPk(req.params.itemId);
@@ -158,10 +158,6 @@ exports.deleteItem = async (req, res, next) => {
         if (item.ownerId !== req.userId) {
             return res.status(403).json({ message: 'You do not have permission to delete this item' });
         }
-
-        await Delivery.destroy({
-            where: { rentalId: item.rentalId } 
-        });
 
         const deletedRows = await Item.destroy({
             where: { id: req.params.itemId },
