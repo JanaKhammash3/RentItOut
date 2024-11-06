@@ -151,33 +151,29 @@ exports.getItemById = async (req, res, next) => {
 exports.updateItem = async (req, res, next) => {
     try {
         const itemId = req.params.itemId;
-        const userId = req.userId;  // Assumes userId is set by authentication middleware
+        const userId = req.userId;  
 
-        // Find the item by ID to check ownership
         const item = await Item.findByPk(itemId);
 
-        // Check if the item exists
+        
         if (!item) {
             return res.status(404).json({ message: 'Item not found' });
         }
 
-        // Check if the authenticated user is the owner of the item
         if (item.ownerId !== userId) {
             return res.status(403).json({ message: 'You do not have permission to update this item' });
         }
 
-        // Update the item fields with the provided data
         const [updatedRows, updatedItems] = await Item.update(req.body, {
             where: { id: itemId },
-            returning: true,  // Needed to get the updated item in response
+            returning: true,  
         });
 
-        // Verify if the update was successful
         if (updatedRows === 0) {
             return res.status(404).json({ message: 'Item not found' });
         }
 
-        const updatedItem = updatedItems[0];  // Get the first updated item
+        const updatedItem = updatedItems[0];  
         res.status(200).json({
             success: true,
             message: 'Item updated successfully',
