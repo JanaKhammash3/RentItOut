@@ -404,8 +404,6 @@ exports.updateRentalStatus = async (req, res) => {
     }
 };
 
-
-
 exports.markAsReceived = async (req, res) => {
     try {
         const rentalId = req.params.id;
@@ -441,6 +439,7 @@ exports.markAsReceived = async (req, res) => {
         res.status(500).json({ error: "Failed to update rental status." });
     }
 };
+
 exports.deleteUserRental = async (req, res) => {
     try {
         const userId = req.user.id;  
