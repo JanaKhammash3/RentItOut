@@ -45,7 +45,17 @@ exports.registerUser = async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
-      user: { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role },
+      user: { 
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address:user.address,
+        isVerified:user.isVerified,
+        role:user.role,
+        idNumber:user.idNumber,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,d: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role },
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -65,7 +75,17 @@ exports.loginUser = async (req, res) => {
     res.status(200).json({
       success: true,
       token,
-      user: { id: user.id, name: user.name, email: user.email, isVerified: user.isVerified, phone: user.phone },
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address:user.address,
+        isVerified:user.isVerified,
+        role:user.role,
+        idNumber:user.idNumber,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt, },
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -146,8 +166,6 @@ exports.verifyUser = async (req, res) => {
     if (user.idNumber !== idNumber || user.phone !== phone) {
       return res.status(400).json({ error: 'Provided ID number or phone number does not match our records.' });
     }
-
-    user.address = address;
     user.isVerified = true;
     await user.save();
 
@@ -159,7 +177,12 @@ exports.verifyUser = async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
-        isVerified: user.isVerified,
+        address:user.address,
+        isVerified:user.isVerified,
+        role:user.role,
+        idNumber:user.idNumber,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       },
     });
   } catch (error) {
@@ -210,10 +233,10 @@ exports.getProfile = async (req, res) => {
 // Update user profile
 exports.updateUserProfile = async (req, res) => {
   try {
-    const { name, email, phone } = req.body;
+    const { name, email, phone ,address} = req.body;
     
     // Validate fields
-    if (!name || !email || !phone) {
+    if (!name || !email || !phone ||!address) {
       return res.status(400).json({ error: 'Name, email, and phone are required.' });
     }
     if (!email.includes('@')) {
@@ -230,6 +253,7 @@ exports.updateUserProfile = async (req, res) => {
     user.name = name;
     user.email = email;
     user.phone = phone;
+    user.address= address;
 
     // Save profile
     await user.save();
@@ -242,6 +266,7 @@ exports.updateUserProfile = async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
+        address: user.address,
         updatedAt: user.updatedAt,
       },
     });
