@@ -24,6 +24,8 @@ const PLACE_KEYWORDS = [
     'sports gear'
 ];
 
+// for testing 
+/*
 router.get('/:rentalId/delivery-options', authMiddleware(), async (req, res) => {
     try {
         const deliveryOptions = ['delivery', 'pickup-point', 'in-person'];
@@ -31,7 +33,7 @@ router.get('/:rentalId/delivery-options', authMiddleware(), async (req, res) => 
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving delivery options', error: error.message });
     }
-});
+});*/
 
 // get nearby locations (google map)
 router.get('/locations', async (req, res) => {
