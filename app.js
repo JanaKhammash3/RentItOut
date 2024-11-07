@@ -14,7 +14,7 @@ const insuranceRoute = require('./routes/insuranceRoute');
 
 const errorHandler = require('./utils/errorHandler');
 const sequelize = require('./config/database');
-
+//test
 
 const app = express();
 
