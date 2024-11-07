@@ -11,7 +11,7 @@ const isTokenBlacklisted = (token) => tokenBlacklist.includes(token);
 exports.registerUser = async (req, res) => {
   try {
     // Default role to 'user'
-    const { name, email, password, phone, idNumber, role } = req.body; 
+    const { name, email, password, phone, idNumber, role,address } = req.body; 
 
     // Validations
     if (!name || !email || !password || !phone || !idNumber) {
@@ -40,7 +40,7 @@ exports.registerUser = async (req, res) => {
 
     //Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hashedPassword, phone, idNumber, role });
+    const user = await User.create({ name, email, password: hashedPassword, phone, idNumber, role, address });
 
     res.status(201).json({
       success: true,
