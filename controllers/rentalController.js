@@ -237,11 +237,11 @@ exports.getRentals = async (req, res, next) => {
 exports.updateRental = async (req, res, next) => {
     console.log('updateUserRental function reached');
     try {
-        const userId = req.user.id; // Get user ID from token middleware
-        const rentalId = req.params.rentalId; // Rental ID from route parameter
+        const userId = req.user.id; 
+        const rentalId = req.params.rentalId; 
         const { startDate, endDate, deliveryMethod } = req.body;
 
-        // Find the rental by its ID and ensure it belongs to the user
+        
         const rental = await Rental.findOne({
             where: {
                 id: rentalId,
@@ -253,7 +253,7 @@ exports.updateRental = async (req, res, next) => {
             return res.status(404).json({ message: 'Rental not found or does not belong to the user' });
         }
 
-        // If dates are provided, validate and recalculate the total cost
+        
         if (startDate && endDate) {
             const rentalDays = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
             if (rentalDays <= 0) {
@@ -268,7 +268,7 @@ exports.updateRental = async (req, res, next) => {
             rental.totalCost = totalCost;
         }
 
-        // Update delivery method if provided
+        
         if (deliveryMethod) {
             if (!['delivery', 'pickup-point', 'in-person'].includes(deliveryMethod)) {
                 return res.status(400).json({ message: 'Invalid delivery method' });
@@ -276,7 +276,7 @@ exports.updateRental = async (req, res, next) => {
             rental.deliveryMethod = deliveryMethod;
         }
 
-        // Save the updated rental
+        
         await rental.save();
 
         res.status(200).json({

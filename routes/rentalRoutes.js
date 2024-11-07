@@ -5,7 +5,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 
 
 router.post('/',authMiddleware(),rentalController.startRental);
-router.get('/',  authMiddleware(), rentalController.getRentals); 
+router.get('/',  authMiddleware(['admin']), rentalController.getRentals); 
 
 router.put('/:rentalId', authMiddleware(), rentalController.updateRental);
 router.get('/myrentals', authMiddleware(), rentalController.getUserRentals);
